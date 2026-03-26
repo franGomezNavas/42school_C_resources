@@ -1,0 +1,2591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>42 — Exam Rank 02 Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3d;
+    --accent: #00e5ff;
+    --accent2: #ff3cac;
+    --accent3: #7b61ff;
+    --green: #00ff88;
+    --yellow: #ffd600;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --l1: #00e5ff;
+    --l2: #7b61ff;
+    --l3: #ff9500;
+    --l4: #ff3cac;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* HEADER */
+  header {
+    position:sticky; top:0; z-index:100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display:flex; align-items:center; gap:20px;
+    height: 60px;
+  }
+
+  .logo {
+    font-family:'Syne',sans-serif;
+    font-weight:800; font-size:22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    letter-spacing:-1px;
+  }
+
+  .header-subtitle { color:var(--muted); font-size:11px; }
+
+  .progress-bar-wrap {
+    flex:1; height:4px;
+    background: var(--border); border-radius:99px; overflow:hidden;
+    max-width:300px; margin-left:auto;
+  }
+  .progress-bar {
+    height:100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius:99px;
+    transition: width 0.4s ease;
+  }
+  .progress-text { color:var(--muted); font-size:11px; white-space:nowrap; }
+
+  /* LAYOUT */
+  .layout {
+    display:grid;
+    grid-template-columns: 240px 1fr;
+    min-height: calc(100vh - 60px);
+    position:relative; z-index:1;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    padding: 16px 0;
+    overflow-y: auto;
+    position:sticky;
+    top:60px;
+    height: calc(100vh - 60px);
+  }
+
+  .level-section { margin-bottom:8px; }
+
+  .level-header {
+    padding: 8px 16px;
+    font-family:'Syne',sans-serif;
+    font-size:10px; font-weight:600;
+    letter-spacing:2px; text-transform:uppercase;
+    display:flex; align-items:center; gap:8px;
+  }
+
+  .level-dot {
+    width:8px; height:8px; border-radius:50%;
+    flex-shrink:0;
+  }
+
+  .ex-btn {
+    width:100%;
+    background:none; border:none;
+    padding: 7px 16px 7px 32px;
+    text-align:left; cursor:pointer;
+    color:var(--muted);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    transition: all 0.15s;
+    display:flex; align-items:center; gap:8px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  .ex-btn:hover { color:var(--text); background: var(--surface2); }
+  .ex-btn.active { color:var(--accent); background: rgba(0,229,255,0.08); }
+  .ex-btn.done { color:var(--green); }
+  .ex-btn.done::before { content:'✓'; color:var(--green); }
+
+  /* MAIN */
+  .main {
+    padding: 32px;
+    max-width: 900px;
+  }
+
+  /* HOME */
+  .home-view { }
+
+  .home-title {
+    font-family:'Syne',sans-serif;
+    font-size:36px; font-weight:800;
+    line-height:1.1; margin-bottom:8px;
+  }
+
+  .home-title span {
+    background: linear-gradient(135deg, var(--accent), var(--accent3), var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+
+  .home-desc { color:var(--muted); margin-bottom:32px; line-height:1.7; font-size:13px; }
+
+  .level-cards {
+    display:grid; grid-template-columns: repeat(2, 1fr);
+    gap:16px; margin-bottom:32px;
+  }
+
+  .level-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius:12px; padding:20px;
+    cursor:pointer; transition: all 0.2s;
+    position:relative; overflow:hidden;
+  }
+
+  .level-card::before {
+    content:''; position:absolute;
+    inset:0; opacity:0;
+    transition: opacity 0.2s;
+  }
+
+  .level-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .level-card:hover::before { opacity:1; }
+
+  .lc-l { font-size:10px; letter-spacing:2px; font-weight:600; margin-bottom:8px; }
+  .lc-name { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; margin-bottom:4px; }
+  .lc-count { color:var(--muted); font-size:12px; }
+  .lc-badge {
+    display:inline-block;
+    padding:2px 10px; border-radius:99px;
+    font-size:10px; font-weight:600;
+    margin-top:12px;
+  }
+
+  /* EXERCISE VIEW */
+  .ex-view { }
+
+  .ex-breadcrumb {
+    font-size:11px; color:var(--muted);
+    margin-bottom:20px;
+    display:flex; align-items:center; gap:8px;
+  }
+
+  .ex-header {
+    display:flex; align-items:flex-start;
+    justify-content:space-between; gap:16px;
+    margin-bottom:24px;
+  }
+
+  .ex-title {
+    font-family:'Syne',sans-serif;
+    font-size:28px; font-weight:800;
+  }
+
+  .level-badge {
+    flex-shrink:0;
+    padding:4px 14px; border-radius:99px;
+    font-size:11px; font-weight:600;
+    font-family:'Syne',sans-serif;
+  }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius:12px; margin-bottom:16px;
+    overflow:hidden;
+  }
+
+  .section-header {
+    padding:14px 20px;
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+    font-size:12px; font-weight:600; letter-spacing:1px;
+    text-transform:uppercase;
+  }
+
+  .section-icon { font-size:16px; }
+
+  .section-body { padding:20px; }
+
+  .enunciado {
+    font-size:13px; line-height:1.8; color:var(--text);
+    white-space: pre-wrap;
+  }
+
+  .code-block {
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius:8px; padding:16px;
+    font-size:12px; line-height:1.8;
+    overflow-x:auto;
+    position:relative;
+  }
+
+  .copy-btn {
+    position:absolute; top:10px; right:10px;
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--muted); cursor:pointer;
+    padding:4px 10px; border-radius:6px;
+    font-size:10px; font-family:'JetBrains Mono',monospace;
+    transition:all 0.15s;
+  }
+  .copy-btn:hover { color:var(--accent); border-color:var(--accent); }
+
+  /* syntax highlight classes */
+  .kw { color: #ff79c6; }
+  .fn { color: #50fa7b; }
+  .ty { color: #8be9fd; }
+  .cm { color: var(--muted); font-style:italic; }
+  .st { color: #f1fa8c; }
+  .nu { color: #bd93f9; }
+  .pp { color: #ffb86c; }
+
+  .hints-toggle {
+    background:none; border:1px solid var(--border);
+    color:var(--muted); cursor:pointer;
+    padding:10px 20px; border-radius:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px; width:100%;
+    text-align:left; margin-bottom:8px;
+    transition:all 0.2s;
+    display:flex; align-items:center; gap:10px;
+  }
+
+  .hints-toggle:hover { border-color:var(--yellow); color:var(--yellow); }
+
+  .hint-item {
+    background: rgba(255,214,0,0.05);
+    border-left: 3px solid var(--yellow);
+    padding:10px 14px; margin:8px 0;
+    border-radius:0 6px 6px 0;
+    font-size:12px; line-height:1.7;
+  }
+
+  .hidden { display:none; }
+
+  .nav-btns {
+    display:flex; gap:12px; margin-top:24px;
+  }
+
+  .btn {
+    padding:10px 24px; border-radius:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px; cursor:pointer;
+    border:none; transition:all 0.15s;
+    font-weight:600;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: var(--bg);
+  }
+  .btn-primary:hover { opacity:0.85; transform:translateY(-1px); }
+
+  .btn-secondary {
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text);
+  }
+  .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
+
+  .btn-done {
+    background:rgba(0,255,136,0.1); border:1px solid var(--green);
+    color:var(--green);
+  }
+
+  .example-io {
+    display:grid; grid-template-columns:1fr 1fr; gap:12px;
+    margin-top:12px;
+  }
+
+  .io-block {
+    background:#0d0d14; border:1px solid var(--border);
+    border-radius:8px; padding:12px; font-size:12px;
+  }
+
+  .io-label { color:var(--muted); font-size:10px; margin-bottom:6px; }
+
+  /* FILTER */
+  .filter-bar {
+    display:flex; gap:8px; margin-bottom:24px;
+    flex-wrap:wrap;
+  }
+
+  .filter-chip {
+    padding:5px 14px; border-radius:99px;
+    font-size:11px; cursor:pointer;
+    border:1px solid var(--border);
+    background:none; color:var(--muted);
+    font-family:'JetBrains Mono',monospace;
+    transition:all 0.15s;
+  }
+  .filter-chip.active { border-color:var(--accent); color:var(--accent); background:rgba(0,229,255,0.08); }
+
+  .search-input {
+    background:var(--surface); border:1px solid var(--border);
+    color:var(--text); padding:8px 14px; border-radius:8px;
+    font-family:'JetBrains Mono',monospace; font-size:12px;
+    outline:none; width:200px;
+    transition:border-color 0.2s;
+  }
+  .search-input:focus { border-color:var(--accent); }
+  .search-input::placeholder { color:var(--muted); }
+
+  @media(max-width:700px){
+    .layout { grid-template-columns:1fr; }
+    .sidebar { display:none; }
+    .level-cards { grid-template-columns:1fr; }
+    .example-io { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">42</div>
+  <div class="header-subtitle">Exam Rank 02 · Practice</div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+    <div class="progress-text" id="progressText">0 / 57</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar"></nav>
+  <main class="main" id="mainContent"></main>
+</div>
+
+<script>
+const EXERCISES = [
+  // ===== LEVEL 1 =====
+  {
+    id:'fizzbuzz', level:1,
+    title:'fizzbuzz',
+    enunciado:`Escribe un programa que imprima los números del 1 al 100, uno por línea.
+
+• Si el número es múltiplo de 3: imprime "fizz"
+• Si es múltiplo de 5: imprime "buzz"
+• Si es múltiplo de 3 Y 5: imprime "fizzbuzz"
+• Si no: imprime el número
+
+Archivo: fizzbuzz.c`,
+    solucion:`#include <unistd.h>
+
+void\tft_putnbr(int n)
+{
+\tif (n >= 10)
+\t\tft_putnbr(n / 10);
+\tchar c = '0' + (n % 10);
+\tunistd.h is needed. write(1, &c, 1);
+}
+
+// Forma más limpia con write:
+void\tput(char *s)
+{
+\tint i = 0;
+\twhile (s[i]) write(1, &s[i++], 1);
+}
+
+void\tputnbr(int n)
+{
+\tchar c;
+\tif (n >= 10) putnbr(n / 10);
+\tc = '0' + n % 10;
+\twrite(1, &c, 1);
+}
+
+int\tmain(void)
+{
+\tint i = 1;
+\twhile (i <= 100)
+\t{
+\t\tif (i % 15 == 0) put("fizzbuzz");
+\t\telse if (i % 3 == 0) put("fizz");
+\t\telse if (i % 5 == 0) put("buzz");
+\t\telse putnbr(i);
+\t\twrite(1, "\\n", 1);
+\t\ti++;
+\t}
+\treturn (0);
+}`,
+    hints:[
+      '⚡ Comprueba % 15 ANTES que % 3 y % 5 — si no, fizzbuzz nunca se ejecuta.',
+      '🔢 Para imprimir números sin printf: divide recursivamente entre 10 y añade el carácter \'0\' + digito.',
+      '📁 Sin includes de stdio.h — solo #include <unistd.h> para write().',
+    ],
+    ejemplo:'1\\n2\\nfizz\\n4\\nbuzz\\nfizz\\n7\\n8\\nfizz\\nbuzz\\n11\\nfizz\\n13\\n14\\nfizzbuzz\\n...'
+  },
+  {
+    id:'rotone', level:1,
+    title:'rotone',
+    enunciado:`Escribe un programa que recibe una cadena como argumento y muestra esa cadena con cada letra desplazada una posición en el alfabeto.
+
+• 'z' se convierte en 'a', 'Z' en 'A'
+• Los no-alfabéticos se mantienen igual
+• Si no hay argumento: imprime solo un newline
+
+Archivo: rotone.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint\t\ti;
+\tchar\tc;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tc = argv[1][i];
+\t\t\tif (c >= 'a' && c <= 'z')
+\t\t\t\tc = (c - 'a' + 1) % 26 + 'a';
+\t\t\telse if (c >= 'A' && c <= 'Z')
+\t\t\t\tc = (c - 'A' + 1) % 26 + 'A';
+\t\t\twrite(1, &c, 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🔁 Fórmula mágica: (c - \'a\' + 1) % 26 + \'a\' — esto maneja el wrap de z→a automáticamente.',
+      '🔡 Trata minúsculas y mayúsculas por separado. Los demás caracteres: copia tal cual.',
+      '⚠️ Si argc != 2, imprime SOLO un newline — no salgas sin él.',
+    ],
+    ejemplo:`$> ./rotone "Hello World!"
+Ifmmp Xpsme!`
+  },
+  {
+    id:'rot_13', level:1,
+    title:'rot_13',
+    enunciado:`Escribe un programa que recibe una cadena y la muestra cifrada con ROT13.
+
+ROT13: cada letra se desplaza 13 posiciones. Aplicado dos veces, vuelve al original.
+• Los no-alfabéticos se mantienen igual
+• Sin argumento: imprime solo newline
+
+Archivo: rot_13.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint\ti;
+\tchar c;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tc = argv[1][i];
+\t\t\tif (c >= 'a' && c <= 'z')
+\t\t\t\tc = (c - 'a' + 13) % 26 + 'a';
+\t\t\telse if (c >= 'A' && c <= 'Z')
+\t\t\t\tc = (c - 'A' + 13) % 26 + 'A';
+\t\t\twrite(1, &c, 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🔁 Idéntico a rotone pero con +13 en vez de +1. La fórmula % 26 funciona igual.',
+      '✅ ROT13 es simétrico: aplicado dos veces da el original. Úsalo para testear.',
+      '📌 "Hello" → "Uryyb"',
+    ],
+    ejemplo:`$> ./rot_13 "Hello World!"
+Uryyb Jbeyq!`
+  },
+  {
+    id:'first_word', level:1,
+    title:'first_word',
+    enunciado:`Escribe un programa que recibe una cadena y muestra su primera palabra, seguida de un newline.
+
+• "Palabra" = secuencia de caracteres ASCII imprimibles sin espacios ni tabs
+• Si no hay argumentos o no hay palabras: solo newline
+
+Archivo: first_word.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i] == ' ' || argv[1][i] == '\\t')
+\t\t\ti++;
+\t\twhile (argv[1][i] && argv[1][i] != ' ' && argv[1][i] != '\\t')
+\t\t{
+\t\t\twrite(1, &argv[1][i], 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🧭 Dos bucles: primero salta espacios/tabs del inicio, luego imprime hasta el próximo espacio/tab.',
+      '⚠️ Los separadores son espacio Y tab (\\t), no solo espacio.',
+      '📌 "  hello world" → "hello"',
+    ],
+    ejemplo:`$> ./first_word "    hello world"
+hello`
+  },
+  {
+    id:'last_word', level:2,
+    title:'last_word',
+    enunciado:`Escribe un programa que recibe una cadena y muestra su última palabra, seguida de newline.
+
+• Si no hay argumentos o no hay palabras: solo newline
+• Los separadores son espacios y/o tabs
+
+Archivo: last_word.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tint end;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i]) i++;
+\t\ti--;
+\t\twhile (i >= 0 && (argv[1][i] == ' ' || argv[1][i] == '\\t'))
+\t\t\ti--;
+\t\tend = i;
+\t\twhile (i >= 0 && argv[1][i] != ' ' && argv[1][i] != '\\t')
+\t\t\ti--;
+\t\ti++;
+\t\twhile (i <= end)
+\t\t{
+\t\t\twrite(1, &argv[1][i], 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '↩️ Estrategia: ve al final del string, salta trailing spaces, luego retrocede hasta el inicio de la última palabra.',
+      '📍 Guarda el índice del final de la palabra (end), luego imprime desde el inicio encontrado hasta end.',
+      '📌 "hello world  " → "world"',
+    ],
+    ejemplo:`$> ./last_word "hello world  "
+world`
+  },
+  {
+    id:'putstr', level:1,
+    title:'ft_putstr / putstr',
+    enunciado:`Escribe una función que muestre el string pasado como parámetro, usando write().
+
+Prototipo: void ft_putstr(char *str);
+
+Archivo: ft_putstr.c`,
+    solucion:`#include <unistd.h>
+
+void\tft_putstr(char *str)
+{
+\tint i;
+
+\ti = 0;
+\twhile (str[i])
+\t{
+\t\twrite(1, &str[i], 1);
+\t\ti++;
+\t}
+}`,
+    hints:[
+      '✅ La más simple del examen. Loop mientras str[i] != \'\\0\', write de cada carácter.',
+      '💡 También puedes calcular el length con un loop y hacer write(1, str, len) en una sola llamada.',
+    ],
+    ejemplo:`ft_putstr("Hello!"); // imprime: Hello!`
+  },
+  {
+    id:'rev_print', level:1,
+    title:'rev_print',
+    enunciado:`Escribe un programa que recibe una cadena y la muestra al revés, seguida de newline.
+
+• Sin argumentos: solo newline
+
+Archivo: rev_print.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i]) i++;
+\t\twhile (i > 0)
+\t\t{
+\t\t\ti--;
+\t\t\twrite(1, &argv[1][i], 1);
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '📐 Primero encuentra la longitud (i llega al \\0), luego decrece i e imprime.',
+      '📌 "Hello" → "olleH"',
+    ],
+    ejemplo:`$> ./rev_print "Hello"
+olleH`
+  },
+  {
+    id:'repeat_alpha', level:1,
+    title:'repeat_alpha',
+    enunciado:`Escribe un programa que recibe una cadena y muestra cada carácter seguido de tantas repeticiones como su posición en el alfabeto (a=1, b=2, ..., z=26).
+
+• Los no-alfabéticos se muestran tal cual sin repetición
+• Sin argumento: solo newline
+• Case-insensitive para la posición (a y A = posición 1)
+
+Archivo: repeat_alpha.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tint j;
+\tint rep;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tif ((argv[1][i] >= 'a' && argv[1][i] <= 'z') ||
+\t\t\t\t(argv[1][i] >= 'A' && argv[1][i] <= 'Z'))
+\t\t\t{
+\t\t\t\tif (argv[1][i] >= 'a') rep = argv[1][i] - 'a' + 1;
+\t\t\t\telse rep = argv[1][i] - 'A' + 1;
+\t\t\t\tj = 0;
+\t\t\t\twhile (j < rep)
+\t\t\t\t{
+\t\t\t\t\twrite(1, &argv[1][i], 1);
+\t\t\t\t\tj++;
+\t\t\t\t}
+\t\t\t}
+\t\t\telse write(1, &argv[1][i], 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🔤 a=1, b=2, ..., z=26. Posición = letra - \'a\' + 1 (minúscula) o letra - \'A\' + 1 (mayúscula).',
+      '🔁 Para cada letra, imprime el mismo carácter (no su minúscula) N veces.',
+      '📌 "ab" → "abb" | "Aa" → "Aa"',
+    ],
+    ejemplo:`$> ./repeat_alpha "abc"
+abbc`
+  },
+  {
+    id:'search_and_replace', level:1,
+    title:'search_and_replace',
+    enunciado:`Escribe un programa que recibe 3 argumentos:
+1. Una cadena
+2. Un carácter a buscar (solo se usa el primero)
+3. Un carácter de reemplazo (solo se usa el primero)
+
+Muestra la cadena con todas las ocurrencias del carácter buscado reemplazadas.
+
+• Si argc != 4: solo newline
+
+Archivo: search_and_replace.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tchar c;
+
+\tif (argc == 4)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tif (argv[1][i] == argv[2][0])
+\t\t\t\tc = argv[3][0];
+\t\t\telse
+\t\t\t\tc = argv[1][i];
+\t\t\twrite(1, &c, 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '📋 argc debe ser exactamente 4 (programa + 3 args).',
+      '🔍 Para cada carácter de argv[1]: si es argv[2][0], escribe argv[3][0]; si no, escribe el carácter.',
+      '📌 ./sar "hello world" "o" "0" → hell0 w0rld',
+    ],
+    ejemplo:`$> ./search_and_replace "hello world" "o" "0"
+hell0 w0rld`
+  },
+  {
+    id:'ulstr', level:1,
+    title:'ulstr',
+    enunciado:`Escribe un programa que recibe una cadena y alterna el case de cada letra:
+• Mayúsculas → minúsculas
+• Minúsculas → mayúsculas
+• No-letras: sin cambio
+
+Sin argumento: solo newline.
+
+Archivo: ulstr.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tchar c;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tc = argv[1][i];
+\t\t\tif (c >= 'a' && c <= 'z') c -= 32;
+\t\t\telse if (c >= 'A' && c <= 'Z') c += 32;
+\t\t\twrite(1, &c, 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🔡 Minúscula - 32 = mayúscula | Mayúscula + 32 = minúscula (diferencia ASCII entre a y A).',
+      '📌 "Hello World" → "hELLO wORLD"',
+    ],
+    ejemplo:`$> ./ulstr "Hello World!"
+hELLO wORLD!`
+  },
+  {
+    id:'ft_strlen', level:1,
+    title:'ft_strlen',
+    enunciado:`Reproduce la función strlen de la librería estándar de C.
+
+Prototipo: int ft_strlen(char *str);
+
+Devuelve la longitud del string (sin contar el \\0).
+
+Archivo: ft_strlen.c`,
+    solucion:`int\tft_strlen(char *str)
+{
+\tint i;
+
+\ti = 0;
+\twhile (str[i])
+\t\ti++;
+\treturn (i);
+}`,
+    hints:[
+      '✅ Bucle simple: incrementa i mientras str[i] != \'\\0\'. Devuelve i.',
+      '📌 ft_strlen("hello") → 5',
+    ],
+    ejemplo:`ft_strlen("hello"); // → 5
+ft_strlen(""); // → 0`
+  },
+  {
+    id:'ft_strcpy', level:1,
+    title:'ft_strcpy',
+    enunciado:`Reproduce la función strcpy de la librería estándar de C.
+
+Prototipo: char *ft_strcpy(char *dest, char *src);
+
+Copia src en dest (incluyendo el \\0). Devuelve dest.
+
+Archivo: ft_strcpy.c`,
+    solucion:`char\t*ft_strcpy(char *dest, char *src)
+{
+\tint i;
+
+\ti = 0;
+\twhile (src[i])
+\t{
+\t\tdest[i] = src[i];
+\t\ti++;
+\t}
+\tdest[i] = '\\0';
+\treturn (dest);
+}`,
+    hints:[
+      '📋 Copia carácter a carácter, y al final copia el \\0 terminador.',
+      '↩️ Devuelve dest (el puntero original, no modificado).',
+    ],
+    ejemplo:`char buf[20];
+ft_strcpy(buf, "hello"); // buf = "hello", retorna buf`
+  },
+  {
+    id:'ft_swap', level:1,
+    title:'ft_swap',
+    enunciado:`Escribe una función que intercambia el contenido de dos enteros.
+
+Prototipo: void ft_swap(int *a, int *b);
+
+Archivo: ft_swap.c`,
+    solucion:`void\tft_swap(int *a, int *b)
+{
+\tint tmp;
+
+\ttmp = *a;
+\t*a = *b;
+\t*b = tmp;
+}`,
+    hints:[
+      '📌 Patrón clásico: tmp = *a; *a = *b; *b = tmp;',
+      '⚠️ Son punteros: usa *a y *b para acceder a los valores.',
+    ],
+    ejemplo:`int a = 5, b = 10;
+ft_swap(&a, &b); // a=10, b=5`
+  },
+
+  // ===== LEVEL 2 =====
+  {
+    id:'alpha_mirror', level:2,
+    title:'alpha_mirror',
+    enunciado:`Escribe un programa que recibe una cadena y muestra su "espejo alfabético":
+• 'a' ↔ 'z', 'b' ↔ 'y', ..., 'A' ↔ 'Z', 'B' ↔ 'Y', etc.
+• No-letras: sin cambio
+• Sin argumento: solo newline
+
+Archivo: alpha_mirror.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tchar c;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tc = argv[1][i];
+\t\t\tif (c >= 'a' && c <= 'z')
+\t\t\t\tc = 'z' - (c - 'a');
+\t\t\telse if (c >= 'A' && c <= 'Z')
+\t\t\t\tc = 'Z' - (c - 'A');
+\t\t\twrite(1, &c, 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      "🔤 Fórmula: 'z' - (c - 'a') para minúsculas. Piensa: a→z, b→y (posición 0→25, 1→24).",
+      "📌 'a' → 'z', 'b' → 'y', 'z' → 'a'. \"Hello\" → \"Svool\"",
+    ],
+    ejemplo:`$> ./alpha_mirror "Hello!"
+Svool!`
+  },
+  {
+    id:'do_op', level:2,
+    title:'do_op',
+    enunciado:`Escribe un programa que recibe 3 argumentos: un número, un operador y otro número. Realiza la operación e imprime el resultado.
+
+Operadores: +, -, *, /, %
+
+• Divisiones/módulo por 0: imprime 0
+• Si argc != 4: no imprime nada (o newline)
+• Usa solo enteros
+
+Archivo: do_op.c`,
+    solucion:`#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint a;
+\tint b;
+\tchar op;
+
+\tif (argc == 4)
+\t{
+\t\ta = atoi(argv[1]);
+\t\top = argv[2][0];
+\t\tb = atoi(argv[3]);
+\t\tif (op == '+') printf("%d\\n", a + b);
+\t\telse if (op == '-') printf("%d\\n", a - b);
+\t\telse if (op == '*') printf("%d\\n", a * b);
+\t\telse if (op == '/' && b != 0) printf("%d\\n", a / b);
+\t\telse if (op == '%' && b != 0) printf("%d\\n", a % b);
+\t\telse if (b == 0) printf("0\\n");
+\t}
+\treturn (0);
+}`,
+    hints:[
+      '🔢 Usa atoi() para convertir los strings a int. #include <stdlib.h>',
+      '⚠️ El operador * puede necesitar ser escapado en shell: escribe "\\*" al testear.',
+      '➗ Si b == 0 en / o %, imprime 0 (no crashes).',
+      '📌 Puedes usar printf() en este ejercicio — es una excepción.',
+    ],
+    ejemplo:`$> ./do_op 10 "+" 5
+15
+$> ./do_op 10 "/" 0
+0`
+  },
+  {
+    id:'ft_atoi', level:2,
+    title:'ft_atoi',
+    enunciado:`Reproduce la función atoi de la librería estándar.
+
+Prototipo: int ft_atoi(const char *str);
+
+Convierte el string a entero. Comportamiento estándar:
+• Ignora espacios/tabs/newlines al inicio
+• Acepta un + o - opcional
+• Lee dígitos hasta el primer no-dígito
+
+Archivo: ft_atoi.c`,
+    solucion:`int\tft_atoi(const char *str)
+{
+\tint result;
+\tint sign;
+\tint i;
+
+\ti = 0;
+\tresult = 0;
+\tsign = 1;
+\twhile (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
+\t\ti++;
+\tif (str[i] == '-' || str[i] == '+')
+\t{
+\t\tif (str[i] == '-') sign = -1;
+\t\ti++;
+\t}
+\twhile (str[i] >= '0' && str[i] <= '9')
+\t{
+\t\tresult = result * 10 + (str[i] - '0');
+\t\ti++;
+\t}
+\treturn (result * sign);
+}`,
+    hints:[
+      '🔢 Tres fases: (1) skip whitespace, (2) handle sign, (3) parse digits.',
+      '💡 result = result * 10 + (str[i] - \'0\') es el truco estándar para acumular dígitos.',
+      '⚠️ Whitespace que salta: espacio (32), tab (9), newline (10), vertical tab (11), feed (12), carriage return (13).',
+    ],
+    ejemplo:`ft_atoi("  -42abc"); // → -42
+ft_atoi("+123");    // → 123`
+  },
+  {
+    id:'ft_strcmp', level:2,
+    title:'ft_strcmp',
+    enunciado:`Reproduce la función strcmp de la librería estándar.
+
+Prototipo: int ft_strcmp(char *s1, char *s2);
+
+• Retorna 0 si son iguales
+• Retorna < 0 si s1 < s2
+• Retorna > 0 si s1 > s2
+
+Archivo: ft_strcmp.c`,
+    solucion:`int\tft_strcmp(char *s1, char *s2)
+{
+\tint i;
+
+\ti = 0;
+\twhile (s1[i] && s1[i] == s2[i])
+\t\ti++;
+\treturn ((unsigned char)s1[i] - (unsigned char)s2[i]);
+}`,
+    hints:[
+      '🔤 Avanza mientras ambos chars sean iguales y no sea \\0.',
+      '↩️ Devuelve la diferencia de los primeros chars distintos (o 0 si llegó al final igual).',
+      '⚠️ Usa unsigned char para la resta — esto evita problemas con valores > 127.',
+    ],
+    ejemplo:`ft_strcmp("hello", "hello"); // → 0
+ft_strcmp("a", "b");       // → -1 (o negativo)`
+  },
+  {
+    id:'ft_strdup', level:2,
+    title:'ft_strdup',
+    enunciado:`Reproduce la función strdup de la librería estándar.
+
+Prototipo: char *ft_strdup(char *src);
+
+• Aloca memoria para una copia de src
+• Copia el contenido incluyendo \\0
+• Devuelve el puntero al nuevo string
+• Devuelve NULL si falla malloc
+
+Archivo: ft_strdup.c`,
+    solucion:`#include <stdlib.h>
+
+char\t*ft_strdup(char *src)
+{
+\tchar\t*dst;
+\tint\t\tlen;
+\tint\t\ti;
+
+\tlen = 0;
+\twhile (src[len]) len++;
+\tdst = (char *)malloc(sizeof(char) * (len + 1));
+\tif (!dst) return (NULL);
+\ti = 0;
+\twhile (i < len)
+\t{
+\t\tdst[i] = src[i];
+\t\ti++;
+\t}
+\tdst[i] = '\\0';
+\treturn (dst);
+}`,
+    hints:[
+      '🧠 malloc(len + 1) — el +1 es para el \\0 terminador.',
+      '✅ Verifica el retorno de malloc antes de usarlo.',
+      '📌 No puedes usar string.h — calcula el length manualmente.',
+    ],
+    ejemplo:`char *dup = ft_strdup("hello"); // dup = "hello" en nueva mem`
+  },
+  {
+    id:'ft_strrev', level:2,
+    title:'ft_strrev',
+    enunciado:`Escribe una función que invierte un string en su lugar.
+
+Prototipo: char *ft_strrev(char *str);
+
+Modifica el string original y lo devuelve.
+
+Archivo: ft_strrev.c`,
+    solucion:`char\t*ft_strrev(char *str)
+{
+\tint\t\tlen;
+\tint\t\ti;
+\tchar\ttmp;
+
+\tlen = 0;
+\twhile (str[len]) len++;
+\ti = 0;
+\twhile (i < len / 2)
+\t{
+\t\ttmp = str[i];
+\t\tstr[i] = str[len - 1 - i];
+\t\tstr[len - 1 - i] = tmp;
+\t\ti++;
+\t}
+\treturn (str);
+}`,
+    hints:[
+      '🔄 Swap del primer y último, segundo y penúltimo, etc. Solo hasta len/2.',
+      '📌 "hello" → "olleh". Modifica in-place.',
+    ],
+    ejemplo:`char s[] = "hello";
+ft_strrev(s); // s = "olleh"`
+  },
+  {
+    id:'is_power_of_2', level:2,
+    title:'is_power_of_2',
+    enunciado:`Escribe una función que determina si un número es potencia de 2.
+
+Prototipo: int is_power_of_2(unsigned int n);
+
+• Devuelve 1 si n es potencia de 2
+• Devuelve 0 si no lo es
+• 0 NO es potencia de 2
+
+Archivo: is_power_of_2.c`,
+    solucion:`int\tis_power_of_2(unsigned int n)
+{
+\tif (n == 0) return (0);
+\treturn ((n & (n - 1)) == 0);
+}`,
+    hints:[
+      '🔮 Truco de bits: las potencias de 2 tienen exactamente 1 bit en 1. n & (n-1) pone ese bit a 0.',
+      '📌 Si n=8 (1000), n-1=7 (0111), n&(n-1)=0 → es potencia de 2.',
+      '⚠️ 0 no es potencia de 2 — caso especial.',
+    ],
+    ejemplo:`is_power_of_2(8);  // → 1
+is_power_of_2(6);  // → 0
+is_power_of_2(0);  // → 0`
+  },
+  {
+    id:'max', level:2,
+    title:'max',
+    enunciado:`Escribe una función que devuelve el valor más grande entre dos enteros.
+
+Prototipo: int max(int a, int b);
+
+Archivo: max.c`,
+    solucion:`int\tmax(int a, int b)
+{
+\tif (a > b) return (a);
+\treturn (b);
+}`,
+    hints:[
+      '✅ La más simple del nivel 2. If a > b return a, else return b.',
+      '💡 También válido: return (a > b ? a : b);',
+    ],
+    ejemplo:`max(5, 10);  // → 10
+max(-1, -5); // → -1`
+  },
+  {
+    id:'print_bits', level:2,
+    title:'print_bits',
+    enunciado:`Escribe una función que muestra la representación binaria de un byte.
+
+Prototipo: void print_bits(unsigned char octet);
+
+• Sin newline al final
+• Imprime de bit más significativo a menos significativo (izquierda a derecha)
+
+Archivo: print_bits.c`,
+    solucion:`#include <unistd.h>
+
+void\tprint_bits(unsigned char octet)
+{
+\tint\t\ti;
+\tunsigned char mask;
+\tchar\tbit;
+
+\ti = 7;
+\twhile (i >= 0)
+\t{
+\t\tmask = 1 << i;
+\t\tbit = (octet & mask) ? '1' : '0';
+\t\twrite(1, &bit, 1);
+\t\ti--;
+\t}
+}`,
+    hints:[
+      '🔲 Usa una máscara que empieza en 1<<7 (128) y va bajando hasta 1<<0.',
+      '📌 Si octet & mask != 0, el bit es 1; si no, es 0.',
+      '📌 255 → "11111111", 1 → "00000001"',
+    ],
+    ejemplo:`print_bits(2);   // → 00000010
+print_bits(255); // → 11111111`
+  },
+  {
+    id:'reverse_bits', level:2,
+    title:'reverse_bits',
+    enunciado:`Escribe una función que invierte los bits de un byte y devuelve el resultado.
+
+Prototipo: unsigned char reverse_bits(unsigned char octet);
+
+Archivo: reverse_bits.c`,
+    solucion:`unsigned char\treverse_bits(unsigned char octet)
+{
+\tint\t\t\ti;
+\tunsigned char result;
+
+\tresult = 0;
+\ti = 0;
+\twhile (i < 8)
+\t{
+\t\tresult = (result << 1) | (octet & 1);
+\t\toctet >>= 1;
+\t\ti++;
+\t}
+\treturn (result);
+}`,
+    hints:[
+      '🔄 En cada iteración: mete el bit menos significativo de octet en result (por la izquierda).',
+      '📌 1 (00000001) → 128 (10000000)',
+      '💡 result = (result << 1) | (octet & 1); luego octet >>= 1;',
+    ],
+    ejemplo:`reverse_bits(1);   // → 128
+reverse_bits(128); // → 1`
+  },
+  {
+    id:'swap_bits', level:2,
+    title:'swap_bits',
+    enunciado:`Escribe una función que intercambia los 4 bits más significativos con los 4 menos significativos de un byte.
+
+Prototipo: unsigned char swap_bits(unsigned char octet);
+
+Archivo: swap_bits.c`,
+    solucion:`unsigned char\tswap_bits(unsigned char octet)
+{
+\treturn ((octet >> 4) | (octet << 4));
+}`,
+    hints:[
+      '🔀 Desplaza 4 a la derecha para sacar el nibble alto, 4 a la izquierda para subir el nibble bajo. OR de ambos.',
+      '📌 0xF0 (11110000) → 0x0F (00001111)',
+    ],
+    ejemplo:`swap_bits(0xF0); // → 0x0F (15)
+swap_bits(0x12); // → 0x21`
+  },
+  {
+    id:'inter', level:2,
+    title:'inter',
+    enunciado:`Escribe un programa que muestra los caracteres de s1 que también están en s2, en el orden en que aparecen en s1, sin duplicados.
+
+• Distinción de mayúsculas/minúsculas
+• Si argc != 3: solo newline
+
+Archivo: inter.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint\tseen[256] = {0};
+\tint\ti;
+\tint\tj;
+\tint\tfound;
+
+\tif (argc == 3)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tif (!seen[(unsigned char)argv[1][i]])
+\t\t\t{
+\t\t\t\tj = 0;
+\t\t\t\tfound = 0;
+\t\t\t\twhile (argv[2][j])
+\t\t\t\t{
+\t\t\t\t\tif (argv[2][j] == argv[1][i])
+\t\t\t\t\t\tfound = 1;
+\t\t\t\t\tj++;
+\t\t\t\t}
+\t\t\t\tif (found)
+\t\t\t\t{
+\t\t\t\t\twrite(1, &argv[1][i], 1);
+\t\t\t\t\tseen[(unsigned char)argv[1][i]] = 1;
+\t\t\t\t}
+\t\t\t}
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '📚 Usa un array seen[256] para marcar qué caracteres ya imprimiste (sin duplicados).',
+      '🔍 Para cada char de s1: si no lo viste antes, busca si existe en s2. Si sí, imprímelo y márcalo.',
+      '📌 inter "parapluie" "parasol" → "para"',
+    ],
+    ejemplo:`$> ./inter "parapluie" "parasol"
+para`
+  },
+  {
+    id:'union_func', level:2,
+    title:'union',
+    enunciado:`Escribe un programa que muestra la unión de los caracteres de s1 y s2, en el orden en que aparecen, sin duplicados.
+
+• Primero los de s1, luego los de s2 que no estén en s1
+• Sin duplicados
+• Si argc != 3: solo newline
+
+Archivo: union.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint\tseen[256] = {0};
+\tint\ti;
+
+\tif (argc == 3)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tif (!seen[(unsigned char)argv[1][i]])
+\t\t\t{
+\t\t\t\twrite(1, &argv[1][i], 1);
+\t\t\t\tseen[(unsigned char)argv[1][i]] = 1;
+\t\t\t}
+\t\t\ti++;
+\t\t}
+\t\ti = 0;
+\t\twhile (argv[2][i])
+\t\t{
+\t\t\tif (!seen[(unsigned char)argv[2][i]])
+\t\t\t{
+\t\t\t\twrite(1, &argv[2][i], 1);
+\t\t\t\tseen[(unsigned char)argv[2][i]] = 1;
+\t\t\t}
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '📚 Mismo patrón que inter: array seen[256]. Dos pasadas: primero s1, luego s2.',
+      '📌 union "parapluie" "parasol" → "paruiesol"',
+    ],
+    ejemplo:`$> ./union "parapluie" "parasol"
+paruiesol`
+  },
+  {
+    id:'wdmatch', level:2,
+    title:'wdmatch',
+    enunciado:`Escribe un programa que determina si los caracteres del string s1 aparecen en el mismo orden en s2.
+
+• Imprime "1" si s1 es un "sub-secuencia" de s2
+• Imprime "0" si no lo es
+• Si argc != 3: solo newline
+
+Archivo: wdmatch.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tint j;
+\tchar result;
+
+\tif (argc == 3)
+\t{
+\t\ti = 0; j = 0;
+\t\twhile (argv[1][i] && argv[2][j])
+\t\t{
+\t\t\tif (argv[1][i] == argv[2][j])
+\t\t\t\ti++;
+\t\t\tj++;
+\t\t}
+\t\tresult = (argv[1][i] == '\\0') ? '1' : '0';
+\t\twrite(1, &result, 1);
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '📍 Dos índices: i para s1, j para s2. Avanza j siempre. Avanza i solo cuando hay match.',
+      '✅ Si i llega al final de s1 → "1". Si j llega antes → "0".',
+      '📌 wdmatch "fard" "forward" → "1" (f-o-r-w-a-r-d contiene f,a,r,d en orden)',
+    ],
+    ejemplo:`$> ./wdmatch "fard" "forward"
+1
+$> ./wdmatch "fard" "fox"
+0`
+  },
+  {
+    id:'snake_to_camel', level:2,
+    title:'snake_to_camel',
+    enunciado:`Escribe un programa que convierte un string snake_case a camelCase.
+
+• Los guiones bajos se eliminan, y la letra siguiente se pone en mayúscula
+• Sin argumento: solo newline
+
+Archivo: snake_to_camel.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint\t\ti;
+\tchar\tc;
+\tint\t\tupnext;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\tupnext = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tc = argv[1][i];
+\t\t\tif (c == '_') { upnext = 1; }
+\t\t\telse
+\t\t\t{
+\t\t\t\tif (upnext && c >= 'a' && c <= 'z')
+\t\t\t\t\tc -= 32;
+\t\t\t\tupnext = 0;
+\t\t\t\twrite(1, &c, 1);
+\t\t\t}
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🐍 Flag upnext=1 cuando encuentras _. En el siguiente carácter, ponlo en mayúscula.',
+      '📌 "hello_world" → "helloWorld"',
+    ],
+    ejemplo:`$> ./snake_to_camel "hello_world"
+helloWorld`
+  },
+  {
+    id:'camel_to_snake', level:2,
+    title:'camel_to_snake',
+    enunciado:`Escribe un programa que convierte un string camelCase a snake_case.
+
+• Cada mayúscula se convierte a minúscula precedida de _
+• La primera letra no lleva _ aunque sea mayúscula
+• Sin argumento: solo newline
+
+Archivo: camel_to_snake.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint\ti;
+\tchar underscore = '_';
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tif (argv[1][i] >= 'A' && argv[1][i] <= 'Z')
+\t\t\t{
+\t\t\t\tif (i != 0) write(1, &underscore, 1);
+\t\t\t\tchar c = argv[1][i] + 32;
+\t\t\t\twrite(1, &c, 1);
+\t\t\t}
+\t\t\telse write(1, &argv[1][i], 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🐪 Si el char es mayúscula y no es el primero (i != 0): escribe _ y luego la minúscula.',
+      '📌 "helloWorld" → "hello_world"',
+    ],
+    ejemplo:`$> ./camel_to_snake "helloWorld"
+hello_world`
+  },
+
+  // ===== LEVEL 3 =====
+  {
+    id:'add_prime_sum', level:3,
+    title:'add_prime_sum',
+    enunciado:`Escribe un programa que recibe un número entero positivo y muestra la suma de todos los números primos hasta (e incluyendo) ese número.
+
+• Si el argumento no es número positivo o no hay args: imprime 0
+• Número → suma de primos ≤ número
+
+Archivo: add_prime_sum.c`,
+    solucion:`#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int\tis_prime(int n)
+{
+\tint i;
+\tif (n < 2) return (0);
+\ti = 2;
+\twhile (i * i <= n)
+\t{
+\t\tif (n % i == 0) return (0);
+\t\ti++;
+\t}
+\treturn (1);
+}
+
+int\tmain(int argc, char **argv)
+{
+\tint n;
+\tint sum;
+\tint i;
+
+\tif (argc != 2 || (n = atoi(argv[1])) <= 0)
+\t{
+\t\twrite(1, "0\\n", 2);
+\t\treturn (0);
+\t}
+\tsum = 0;
+\ti = 2;
+\twhile (i <= n)
+\t{
+\t\tif (is_prime(i)) sum += i;
+\t\ti++;
+\t}
+\tprintf("%d\\n", sum);
+\treturn (0);
+}`,
+    hints:[
+      '🔢 Función auxiliar is_prime(n): prueba divisores desde 2 hasta sqrt(n) (i*i <= n).',
+      '📌 add_prime_sum 5 → 2+3+5 = 10',
+    ],
+    ejemplo:`$> ./add_prime_sum 5
+10
+$> ./add_prime_sum 10
+17`
+  },
+  {
+    id:'paramsum', level:3,
+    title:'paramsum',
+    enunciado:`Escribe un programa que recibe argumentos de línea de comandos y muestra la suma de todos los argumentos numéricos, seguida de newline.
+
+• Los argumentos no numéricos se ignoran (o valen 0)
+• Sin argumentos: muestra 0
+
+Archivo: paramsum.c`,
+    solucion:`#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint\tsum;
+\tint\ti;
+
+\tsum = 0;
+\ti = 1;
+\twhile (i < argc)
+\t{
+\t\tsum += atoi(argv[i]);
+\t\ti++;
+\t}
+\tprintf("%d\\n", sum);
+\treturn (0);
+}`,
+    hints:[
+      '🔢 atoi devuelve 0 para strings no numéricos — úsalo directamente.',
+      '📌 ./paramsum 1 2 3 → 6',
+    ],
+    ejemplo:`$> ./paramsum 1 2 3
+6
+$> ./paramsum
+0`
+  },
+  {
+    id:'pgcd', level:3,
+    title:'pgcd (GCD)',
+    enunciado:`Escribe un programa que recibe dos números y muestra su máximo común divisor (MCD).
+
+• Sin argumentos o argumentos inválidos: no imprime nada (o newline)
+
+Archivo: pgcd.c`,
+    solucion:`#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int\tpgcd(int a, int b)
+{
+\tif (b == 0) return (a);
+\treturn (pgcd(b, a % b));
+}
+
+int\tmain(int argc, char **argv)
+{
+\tif (argc == 3)
+\t{
+\t\tint a = atoi(argv[1]);
+\t\tint b = atoi(argv[2]);
+\t\tprintf("%d\\n", pgcd(a, b));
+\t}
+\treturn (0);
+}`,
+    hints:[
+      '🔁 Algoritmo de Euclides: pgcd(a, b) = pgcd(b, a % b). Caso base: b == 0, devuelve a.',
+      '📌 pgcd(12, 8) → 4',
+    ],
+    ejemplo:`$> ./pgcd 12 8
+4`
+  },
+  {
+    id:'lcm', level:3,
+    title:'lcm (MCM)',
+    enunciado:`Escribe un programa que recibe dos números y muestra su mínimo común múltiplo (MCM).
+
+Archivo: lcm.c`,
+    solucion:`#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+unsigned int\tpgcd(unsigned int a, unsigned int b)
+{
+\tif (b == 0) return (a);
+\treturn (pgcd(b, a % b));
+}
+
+unsigned int\tlcm(unsigned int a, unsigned int b)
+{
+\tif (a == 0 || b == 0) return (0);
+\treturn (a / pgcd(a, b) * b);
+}
+
+int\tmain(int argc, char **argv)
+{
+\tif (argc == 3)
+\t{
+\t\tunsigned int a = (unsigned int)atoi(argv[1]);
+\t\tunsigned int b = (unsigned int)atoi(argv[2]);
+\t\tprintf("%u\\n", lcm(a, b));
+\t}
+\treturn (0);
+}`,
+    hints:[
+      '📐 MCM = (a / GCD(a,b)) * b — divide primero para evitar overflow.',
+      '🔁 Necesitas la función pgcd (Euclides) como auxiliar.',
+    ],
+    ejemplo:`$> ./lcm 4 6
+12`
+  },
+  {
+    id:'print_hex', level:3,
+    title:'print_hex',
+    enunciado:`Escribe un programa que recibe un número positivo en decimal y lo muestra en hexadecimal (minúsculas).
+
+• Sin argumento: solo newline
+
+Archivo: print_hex.c`,
+    solucion:`#include <unistd.h>
+#include <stdlib.h>
+
+void\tprint_hex(unsigned int n)
+{
+\tchar *hex = "0123456789abcdef";
+\tif (n >= 16)
+\t\tprint_hex(n / 16);
+\twrite(1, &hex[n % 16], 1);
+}
+
+int\tmain(int argc, char **argv)
+{
+\tif (argc == 2)
+\t\tprint_hex((unsigned int)atoi(argv[1]));
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🔢 Base 16: usa el string "0123456789abcdef" como tabla de lookup.',
+      '🔁 Recursión: imprime n/16 primero (parte alta), luego n%16.',
+      '📌 255 → "ff", 16 → "10"',
+    ],
+    ejemplo:`$> ./print_hex 255
+ff`
+  },
+  {
+    id:'ft_range', level:3,
+    title:'ft_range',
+    enunciado:`Escribe una función que aloca y devuelve un array de ints que contiene todos los valores entre min (incluido) y max (excluido).
+
+Prototipo: int *ft_range(int min, int max);
+
+• Si min >= max, devuelve NULL
+
+Archivo: ft_range.c`,
+    solucion:`#include <stdlib.h>
+
+int\t*ft_range(int min, int max)
+{
+\tint\t*arr;
+\tint\tsize;
+\tint\ti;
+
+\tif (min >= max) return (NULL);
+\tsize = max - min;
+\tarr = (int *)malloc(sizeof(int) * size);
+\tif (!arr) return (NULL);
+\ti = 0;
+\twhile (i < size)
+\t{
+\t\tarr[i] = min + i;
+\t\ti++;
+\t}
+\treturn (arr);
+}`,
+    hints:[
+      '📦 size = max - min. malloc de size ints.',
+      '📌 ft_range(1, 5) → [1, 2, 3, 4] (4 elementos)',
+    ],
+    ejemplo:`int *r = ft_range(1, 5); // [1, 2, 3, 4]`
+  },
+  {
+    id:'ft_rrange', level:3,
+    title:'ft_rrange',
+    enunciado:`Igual que ft_range pero el array va de max-1 a min (en orden decreciente).
+
+Prototipo: int *ft_rrange(int min, int max);
+
+• Si min >= max, devuelve NULL
+
+Archivo: ft_rrange.c`,
+    solucion:`#include <stdlib.h>
+
+int\t*ft_rrange(int min, int max)
+{
+\tint\t*arr;
+\tint\tsize;
+\tint\ti;
+
+\tif (min >= max) return (NULL);
+\tsize = max - min;
+\tarr = (int *)malloc(sizeof(int) * size);
+\tif (!arr) return (NULL);
+\ti = 0;
+\twhile (i < size)
+\t{
+\t\tarr[i] = max - 1 - i;
+\t\ti++;
+\t}
+\treturn (arr);
+}`,
+    hints:[
+      '🔄 Como ft_range pero arr[i] = max - 1 - i.',
+      '📌 ft_rrange(1, 5) → [4, 3, 2, 1]',
+    ],
+    ejemplo:`int *r = ft_rrange(1, 5); // [4, 3, 2, 1]`
+  },
+  {
+    id:'epur_str', level:3,
+    title:'epur_str',
+    enunciado:`Escribe un programa que recibe una cadena y la muestra "limpia": sin espacios/tabs múltiples consecutivos y sin espacios al inicio o final.
+
+• Los espacios internos múltiples se reducen a uno solo
+• Sin argumento: solo newline
+
+Archivo: epur_str.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint\ti;
+\tint\tspace;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\tspace = 0;
+\t\twhile (argv[1][i] == ' ' || argv[1][i] == '\\t') i++;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tif (argv[1][i] == ' ' || argv[1][i] == '\\t')
+\t\t\t\tspace = 1;
+\t\t\telse
+\t\t\t{
+\t\t\t\tif (space) { write(1, " ", 1); space = 0; }
+\t\t\t\twrite(1, &argv[1][i], 1);
+\t\t\t}
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🧹 Flag space: cuando ves un espacio, actívalo. Cuando llegue un no-espacio, si space=1 escribe UN espacio.',
+      '📍 Primero salta espacios del inicio, luego el bucle principal.',
+      '📌 "  hello   world  " → "hello world"',
+    ],
+    ejemplo:`$> ./epur_str "  hello   world  "
+hello world`
+  },
+  {
+    id:'hidenp', level:3,
+    title:'hidenp',
+    enunciado:`Escribe un programa que recibe dos strings y determina si s1 está escondido en s2 (como sub-secuencia).
+
+• Imprime 1 si s1 es sub-secuencia de s2
+• Imprime 0 si no
+• Si argc != 3: solo newline
+
+Archivo: hidenp.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tint j;
+\tchar result;
+
+\tif (argc == 3)
+\t{
+\t\ti = 0; j = 0;
+\t\twhile (argv[1][i] && argv[2][j])
+\t\t{
+\t\t\tif (argv[1][i] == argv[2][j]) i++;
+\t\t\tj++;
+\t\t}
+\t\tresult = (!argv[1][i]) ? '1' : '0';
+\t\twrite(1, &result, 1);
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🔍 Idéntico al algoritmo de wdmatch. Dos índices, avanza j siempre, i solo en match.',
+      '📌 hidenp "abc" "aXbYcZ" → 1',
+    ],
+    ejemplo:`$> ./hidenp "abc" "aXbYcZ"
+1`
+  },
+  {
+    id:'str_capitalizer', level:3,
+    title:'str_capitalizer',
+    enunciado:`Escribe un programa que pone en mayúscula la primera letra de cada palabra de la cadena recibida. El resto se convierte a minúscula.
+
+• Separadores: espacios y tabs
+• Sin argumento: solo newline
+
+Archivo: str_capitalizer.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tint new_word;
+\tchar c;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\tnew_word = 1;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tc = argv[1][i];
+\t\t\tif (c == ' ' || c == '\\t')
+\t\t\t\tnew_word = 1;
+\t\t\telse
+\t\t\t{
+\t\t\t\tif (new_word && c >= 'a' && c <= 'z') c -= 32;
+\t\t\t\telse if (!new_word && c >= 'A' && c <= 'Z') c += 32;
+\t\t\t\tnew_word = 0;
+\t\t\t}
+\t\t\twrite(1, &c, 1);
+\t\t\ti++;
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🔤 Flag new_word=1 al inicio y tras cada espacio. Cuando encuentras letra con new_word=1 → mayúscula. Resto → minúscula.',
+      '📌 "hello world" → "Hello World"',
+    ],
+    ejemplo:`$> ./str_capitalizer "hello world from 42"
+Hello World From 42`
+  },
+  {
+    id:'rstr_capitalizer', level:3,
+    title:'rstr_capitalizer',
+    enunciado:`Escribe un programa que pone en mayúscula la ÚLTIMA letra de cada palabra y el resto en minúscula.
+
+• Separadores: espacios y tabs
+• Sin argumento: solo newline
+
+Archivo: rstr_capitalizer.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tchar c;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tc = argv[1][i];
+\t\t\tif (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z')
+\t\t\t{
+\t\t\t\tchar next = argv[1][i + 1];
+\t\t\t\tint is_last = (next == ' ' || next == '\\t' || next == '\\0');
+\t\t\t\tif (is_last && c >= 'a' && c <= 'z') c -= 32;
+\t\t\t\telse if (!is_last && c >= 'A' && c <= 'Z') c += 32;
+\t\t\t}\t\t\t\n\t\t\twrite(1, &c, 1);\n\t\t\ti++;\n\t\t}\n\t}\n\twrite(1, "\\n", 1);\n\treturn (0);\n}`,
+    hints:[
+      '🔤 Para saber si es la última letra de una palabra: mira argv[1][i+1] — ¿es espacio, tab o \\0?',
+      '📌 "hello world" → "hellO worlD"',
+    ],
+    ejemplo:`$> ./rstr_capitalizer "hello world"
+hellO worlD`
+  },
+  {
+    id:'tab_mult', level:3,
+    title:'tab_mult',
+    enunciado:`Escribe un programa que muestra la tabla de multiplicar del número recibido como argumento, del 1 al 9.
+
+Formato: "1 x N = resultado"
+• Si argc != 2: solo newline
+
+Archivo: tab_mult.c`,
+    solucion:`#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint n;
+\tint i;
+
+\tif (argc == 2)
+\t{
+\t\tn = atoi(argv[1]);
+\t\ti = 1;
+\t\twhile (i <= 9)
+\t\t{
+\t\t\tprintf("%d x %d = %d\\n", i, n, i * n);
+\t\t\ti++;
+\t\t}
+\t}
+\treturn (0);
+}`,
+    hints:[
+      '🔢 Loop de i=1 a 9, printf de "i x n = i*n".',
+      '📌 ./tab_mult 3 → "1 x 3 = 3\\n2 x 3 = 6\\n..."',
+    ],
+    ejemplo:`$> ./tab_mult 3
+1 x 3 = 3
+2 x 3 = 6
+...`
+  },
+  {
+    id:'ft_atoi_base', level:3,
+    title:'ft_atoi_base',
+    enunciado:`Escribe una función que convierte un string en un entero dado en una base específica.
+
+Prototipo: int ft_atoi_base(const char *str, const char *base);
+
+• La base es una cadena de caracteres únicos
+• Ignora espacios al inicio
+• Acepta signo + o -
+• Si la base es inválida (menos de 2 chars, chars repetidos, + - o space en base): devuelve 0
+
+Archivo: ft_atoi_base.c`,
+    solucion:`int\tbase_len(const char *base)
+{
+\tint i = 0;
+\twhile (base[i]) i++;
+\treturn i;
+}
+
+int\tis_valid_base(const char *base)
+{
+\tint i, j, len;
+\tlen = base_len(base);
+\tif (len < 2) return 0;
+\ti = 0;
+\twhile (base[i])
+\t{
+\t\tif (base[i] == '+' || base[i] == '-' ||
+\t\t\tbase[i] == ' ') return 0;
+\t\tj = i + 1;
+\t\twhile (base[j])
+\t\t{
+\t\t\tif (base[j] == base[i]) return 0;
+\t\t\tj++;
+\t\t}
+\t\ti++;
+\t}
+\treturn 1;
+}
+
+int\tchar_val(char c, const char *base)
+{
+\tint i = 0;
+\twhile (base[i])
+\t{
+\t\tif (base[i] == c) return i;
+\t\ti++;
+\t}
+\treturn -1;
+}
+
+int\tft_atoi_base(const char *str, const char *base)
+{
+\tint result, sign, i, len, val;
+\tif (!is_valid_base(base)) return 0;
+\tlen = base_len(base);
+\ti = 0; result = 0; sign = 1;
+\twhile (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13)) i++;
+\twhile (str[i] == '+' || str[i] == '-')
+\t{ if (str[i] == '-') sign *= -1; i++; }
+\twhile ((val = char_val(str[i], base)) != -1)
+\t{ result = result * len + val; i++; }
+\treturn result * sign;
+}`,
+    hints:[
+      '🔢 Igual que atoi pero con base variable. char_val() busca el índice del carácter en la base.',
+      '✅ Valida la base: >= 2 chars, sin repetidos, sin +/-/espacio.',
+      '📌 ft_atoi_base("ff", "0123456789abcdef") → 255',
+    ],
+    ejemplo:`ft_atoi_base("ff", "0123456789abcdef"); // → 255
+ft_atoi_base("11", "01"); // → 3`
+  },
+  {
+    id:'expand_str', level:3,
+    title:'expand_str',
+    enunciado:`Escribe un programa que recibe una cadena y la muestra con cada espacio reemplazado por el número de espacios que hay seguidos.
+
+• "a   b" (3 espacios) → "a333b"
+• Sin argumento: solo newline
+
+Archivo: expand_str.c`,
+    solucion:`#include <unistd.h>
+
+void\tput_digit(int n)
+{
+\tchar c = '0' + n;
+\twrite(1, &c, 1);
+}
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tint count;
+
+\tif (argc == 2)
+\t{
+\t\ti = 0;
+\t\twhile (argv[1][i])
+\t\t{
+\t\t\tif (argv[1][i] == ' ')
+\t\t\t{
+\t\t\t\tcount = 0;
+\t\t\t\twhile (argv[1][i + count] == ' ') count++;
+\t\t\t\tint j = 0;
+\t\t\t\twhile (j < count) { put_digit(count); j++; i++; }
+\t\t\t}
+\t\t\telse
+\t\t\t{
+\t\t\t\twrite(1, &argv[1][i], 1);
+\t\t\t\ti++;
+\t\t\t}
+\t\t}
+\t}
+\twrite(1, "\\n", 1);
+\treturn (0);
+}`,
+    hints:[
+      '🔢 Cuando encuentres un espacio, cuenta cuántos espacios consecutivos hay (count). Luego imprime el dígito count, count veces.',
+      '📌 "a   b" → "a333b" (3 espacios → cada uno se convierte en \'3\')',
+    ],
+    ejemplo:`$> ./expand_str "a   b  c"
+a333b22c`
+  },
+
+  // ===== LEVEL 4 =====
+  {
+    id:'ft_itoa', level:4,
+    title:'ft_itoa',
+    enunciado:`Escribe una función que convierte un entero en su representación como string.
+
+Prototipo: char *ft_itoa(int nbr);
+
+• Aloca memoria para el resultado
+• Debe manejar números negativos
+• INT_MIN debe funcionar correctamente
+
+Archivo: ft_itoa.c`,
+    solucion:`#include <stdlib.h>
+
+int\tcount_digits(long n)
+{
+\tint count;
+\tcount = (n <= 0) ? 1 : 0;
+\tif (n < 0) n = -n;
+\twhile (n > 0) { count++; n /= 10; }
+\treturn count;
+}
+
+char\t*ft_itoa(int nbr)
+{
+\tchar\t*s;
+\tlong\tn;
+\tint\t\tlen;
+\tint\t\ti;
+
+\tn = (long)nbr;
+\tlen = count_digits(n) + (n < 0 ? 1 : 0);
+\ts = (char *)malloc(len + 1);
+\tif (!s) return NULL;
+\ts[len] = '\\0';
+\ti = len - 1;
+\tif (n == 0) { s[0] = '0'; return s; }
+\tif (n < 0) { s[0] = '-'; n = -n; }
+\twhile (n > 0)
+\t{
+\t\ts[i--] = '0' + n % 10;
+\t\tn /= 10;
+\t}
+\treturn s;
+}`,
+    hints:[
+      '🔢 Cuenta dígitos primero (incluyendo el signo -). Usa long para manejar INT_MIN.',
+      '📍 Llena el string de atrás hacia adelante con los dígitos (módulo 10).',
+      '⚠️ INT_MIN = -2147483648. Si haces -INT_MIN sigue siendo negativo — usa long.',
+    ],
+    ejemplo:`ft_itoa(42);    // "42"
+ft_itoa(-21);   // "-21"
+ft_itoa(0);     // "0"`
+  },
+  {
+    id:'fprime', level:4,
+    title:'fprime',
+    enunciado:`Escribe un programa que muestra los factores primos del número recibido, separados por '*', seguidos de newline.
+
+• El número debe ser >= 2
+• Si argc != 2 o el número < 2: solo newline
+• Los factores van en orden ascendente
+
+Archivo: fprime.c`,
+    solucion:`#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint n;
+\tint div;
+\tint first;
+
+\tif (argc != 2 || (n = atoi(argv[1])) < 2)
+\t{
+\t\twrite(1, "\\n", 1);
+\t\treturn (0);
+\t}
+\tdiv = 2;
+\tfirst = 1;
+\twhile (n > 1)
+\t{
+\t\tif (n % div == 0)
+\t\t{
+\t\t\tif (!first) printf("*");
+\t\t\tprintf("%d", div);
+\t\t\tfirst = 0;
+\t\t\tn /= div;
+\t\t}
+\t\telse div++;
+\t}
+\tprintf("\\n");
+\treturn (0);
+}`,
+    hints:[
+      '🔢 Empieza con div=2. Mientras n % div == 0: imprime div, divide n. Luego incrementa div.',
+      '📌 ./fprime 12 → "2*2*3"',
+      '💡 No necesitas comprobar si div es primo — los compuestos ya se habrán dividido.',
+    ],
+    ejemplo:`$> ./fprime 12
+2*2*3
+$> ./fprime 7
+7`
+  },
+  {
+    id:'sort_int_tab', level:4,
+    title:'sort_int_tab',
+    enunciado:`Escribe una función que ordena un array de enteros en orden ascendente.
+
+Prototipo: void sort_int_tab(int *tab, unsigned int size);
+
+Archivo: sort_int_tab.c`,
+    solucion:`void\tsort_int_tab(int *tab, unsigned int size)
+{
+\tunsigned int\ti;
+\tint\t\t\t\ttmp;
+\tint\t\t\t\tswapped;
+
+\tswapped = 1;
+\twhile (swapped)
+\t{
+\t\tswapped = 0;
+\t\ti = 0;
+\t\twhile (i < size - 1)
+\t\t{
+\t\t\tif (tab[i] > tab[i + 1])
+\t\t\t{
+\t\t\t\ttmp = tab[i];
+\t\t\t\ttab[i] = tab[i + 1];
+\t\t\t\ttab[i + 1] = tmp;
+\t\t\t\tswapped = 1;
+\t\t\t}\n\t\t\ti++;\n\t\t}\n\t}\n}`,
+    hints:[
+      '🔄 Bubble sort: compara pares adyacentes y los intercambia si están en el orden incorrecto.',
+      '📌 Repite hasta que no haya swaps en una pasada completa.',
+    ],
+    ejemplo:`int tab[] = {3, 1, 2};
+sort_int_tab(tab, 3); // → {1, 2, 3}`
+  },
+  {
+    id:'ft_split', level:4,
+    title:'ft_split',
+    enunciado:`Escribe una función que divide un string usando un charset de delimitadores, y devuelve un array de strings.
+
+Prototipo: char **ft_split(char *str, char *charset);
+
+• El array termina en NULL
+• Si str es NULL: devuelve NULL
+• Los separadores son cualquier carácter en charset
+
+Archivo: ft_split.c`,
+    solucion:`#include <stdlib.h>
+
+int\tis_sep(char c, char *sep)
+{
+\tint i = 0;
+\twhile (sep[i])
+\t\tif (sep[i++] == c) return 1;
+\treturn 0;
+}
+
+int\tcount_words(char *s, char *sep)
+{
+\tint count = 0;
+\tint in_word = 0;
+\tint i = 0;
+\twhile (s[i])
+\t{
+\t\tif (!is_sep(s[i], sep) && !in_word) { count++; in_word = 1; }
+\t\telse if (is_sep(s[i], sep)) in_word = 0;
+\t\ti++;
+\t}
+\treturn count;
+}
+
+char\t*get_word(char *s, int start, int end)
+{
+\tchar *w = (char *)malloc(end - start + 1);
+\tif (!w) return NULL;
+\tint i = 0;
+\twhile (start < end) w[i++] = s[start++];
+\tw[i] = '\\0';
+\treturn w;
+}
+
+char\t**ft_split(char *str, char *charset)
+{
+\tif (!str) return NULL;
+\tint words = count_words(str, charset);
+\tchar **res = (char **)malloc(sizeof(char *) * (words + 1));
+\tif (!res) return NULL;
+\tint i = 0, j = 0, start;
+\twhile (j < words)
+\t{
+\t\twhile (is_sep(str[i], charset)) i++;
+\t\tstart = i;
+\t\twhile (str[i] && !is_sep(str[i], charset)) i++;
+\t\tres[j++] = get_word(str, start, i);
+\t}
+\tres[j] = NULL;
+\treturn res;
+}`,
+    hints:[
+      '🧩 Tres partes: contar palabras, alocar array, extraer cada palabra.',
+      '📌 ft_split("hello world", " ") → ["hello", "world", NULL]',
+      '⚠️ charset puede tener múltiples separadores. is_sep() comprueba si c está en charset.',
+    ],
+    ejemplo:`char **r = ft_split("one,two,,three", ",");
+// ["one", "two", "three", NULL]`
+  },
+  {
+    id:'rostring', level:4,
+    title:'rostring',
+    enunciado:`Escribe un programa que recibe una cadena y muestra cada palabra rotada a la izquierda (primera palabra va al final).
+
+• Las palabras se separan por espacios/tabs
+• Se muestra una sola separación entre palabras
+• Sin argumento: solo newline
+
+Archivo: rostring.c`,
+    solucion:`#include <unistd.h>
+
+int\tmain(int argc, char **argv)
+{
+\tint i;
+\tint start;
+\tint first_end;
+
+\tif (argc == 2)\n\t{\n\t\ti = 0;\n\t\twhile (argv[1][i] == ' ' || argv[1][i] == '\\t') i++;\n\t\tstart = i;\n\t\twhile (argv[1][i] && argv[1][i] != ' ' && argv[1][i] != '\\t') i++;\n\t\tfirst_end = i;\n\t\twhile (argv[1][i])\n\t\t{\n\t\t\tif (argv[1][i] != ' ' && argv[1][i] != '\\t')\n\t\t\t{\n\t\t\t\twrite(1, &argv[1][i], 1);\n\t\t\t}\n\t\t\telse if (argv[1][i + 1] && argv[1][i + 1] != ' ' && argv[1][i + 1] != '\\t')\n\t\t\t{\n\t\t\t\twrite(1, " ", 1);\n\t\t\t}\n\t\t\ti++;\n\t\t}\n\t\tif (first_end > start)\n\t\t{\n\t\t\twrite(1, " ", 1);\n\t\t\ti = start;\n\t\t\twhile (i < first_end)\n\t\t\t{\n\t\t\t\twrite(1, &argv[1][i], 1);\n\t\t\t\ti++;\n\t\t\t}\n\t\t}\n\t}\n\twrite(1, "\\n", 1);\n\treturn (0);\n}`,
+    hints:[
+      '🔄 Guarda la primera palabra, imprime el resto, y al final añade la primera palabra.',
+      '📌 "hello world foo" → "world foo hello"',
+    ],
+    ejemplo:`$> ./rostring "hello world foo"
+world foo hello`
+  },
+  {
+    id:'rev_wstr', level:4,
+    title:'rev_wstr',
+    enunciado:`Escribe un programa que recibe una cadena y muestra sus palabras en orden inverso.
+
+• Las palabras se separan por espacios/tabs
+• Una sola separación entre palabras en la salida
+• Sin argumento: solo newline
+
+Archivo: rev_wstr.c`,
+    solucion:`#include <unistd.h>
+
+int\tword_len(char *s)
+{
+\tint i = 0;\n\twhile (s[i] && s[i] != ' ' && s[i] != '\\t') i++;\n\treturn i;\n}\n\nvoid\tprint_word(char *s, int len)\n{\n\tint i = 0;\n\twhile (i < len) { write(1, &s[i], 1); i++; }\n}\n\nint\tmain(int argc, char **argv)\n{\n\tint i;\n\tint printed;\n\n\tif (argc == 2)\n\t{\n\t\ti = 0;\n\t\twhile (argv[1][i]) i++;\n\t\ti--;\n\t\tprinted = 0;\n\t\twhile (i >= 0)\n\t\t{\n\t\t\twhile (i >= 0 && (argv[1][i] == ' ' || argv[1][i] == '\\t')) i--;\n\t\t\tif (i >= 0)\n\t\t\t{\n\t\t\t\tint end = i;\n\t\t\t\twhile (i >= 0 && argv[1][i] != ' ' && argv[1][i] != '\\t') i--;\n\t\t\t\tif (printed) write(1, " ", 1);\n\t\t\t\tprint_word(&argv[1][i + 1], end - i);\n\t\t\t\tprinted = 1;\n\t\t\t}\n\t\t}\n\t}\n\twrite(1, "\\n", 1);\n\treturn (0);\n}`,
+    hints:[
+      '↩️ Empieza desde el final del string. Salta espacios, localiza cada palabra, imprímela.',
+      '📌 "hello world foo" → "foo world hello"',
+    ],
+    ejemplo:`$> ./rev_wstr "hello world foo"
+foo world hello`
+  },
+  {
+    id:'flood_fill', level:4,
+    title:'flood_fill',
+    enunciado:`Escribe una función que realiza un flood fill en una matriz de chars.
+
+Prototipo: void flood_fill(char **tab, t_point size, t_point begin);
+
+Donde t_point es: typedef struct { int x; int y; } t_point;
+
+• Reemplaza todos los caracteres conectados al punto begin (mismo carácter) con 'F'
+• Conectividad: 4 direcciones (arriba, abajo, izquierda, derecha)
+
+Archivo: flood_fill.c`,
+    solucion:`typedef struct\ts_point {\n\tint x;\n\tint y;\n} t_point;\n\nvoid\tflood_fill(char **tab, t_point size, t_point begin)\n{\n\tchar\ttarget;\n\n\ttarget = tab[begin.y][begin.x];\n\tif (target == 'F') return;\n\ttab[begin.y][begin.x] = 'F';\n\tif (begin.x > 0) {\n\t\tt_point p = {begin.x - 1, begin.y};\n\t\tif (tab[p.y][p.x] == target) flood_fill(tab, size, p);\n\t}\n\tif (begin.x < size.x - 1) {\n\t\tt_point p = {begin.x + 1, begin.y};\n\t\tif (tab[p.y][p.x] == target) flood_fill(tab, size, p);\n\t}\n\tif (begin.y > 0) {\n\t\tt_point p = {begin.x, begin.y - 1};\n\t\tif (tab[p.y][p.x] == target) flood_fill(tab, size, p);\n\t}\n\tif (begin.y < size.y - 1) {\n\t\tt_point p = {begin.x, begin.y + 1};\n\t\tif (tab[p.y][p.x] == target) flood_fill(tab, size, p);\n\t}\n}`,
+    hints:[
+      '🔁 Recursión: guarda el char original (target). Marca el actual como F, llama recursivamente a los 4 vecinos si tienen el mismo target.',
+      '⚠️ Comprueba los límites antes de acceder a vecinos.',
+      '📌 tab[y][x] — primero y (fila), luego x (columna).',
+    ],
+    ejemplo:`// Matriz: {".##", ".#.", "..."}
+// begin: (0,0)
+// Resultado: rellena todos los '.' conectados con 'F'`
+  },
+];
+
+// ======================== STATE ========================
+const done = JSON.parse(localStorage.getItem('42_done') || '[]');
+let currentId = null;
+const LEVELS = [1,2,3,4];
+const LEVEL_NAMES = { 1:'Nivel 1', 2:'Nivel 2', 3:'Nivel 3', 4:'Nivel 4' };
+const LEVEL_COLORS = { 1:'var(--l1)', 2:'var(--l2)', 3:'var(--l3)', 4:'var(--l4)' };
+
+function markDone(id) {
+  if (!done.includes(id)) {
+    done.push(id);
+    localStorage.setItem('42_done', JSON.stringify(done));
+  }
+  renderSidebar();
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = Math.round((done.length / EXERCISES.length) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = done.length + ' / ' + EXERCISES.length;
+}
+
+// ======================== SIDEBAR ========================
+function renderSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.innerHTML = '';
+  LEVELS.forEach(lv => {
+    const exs = EXERCISES.filter(e => e.level === lv);
+    const div = document.createElement('div');
+    div.className = 'level-section';
+    div.innerHTML = `<div class="level-header">
+      <div class="level-dot" style="background:${LEVEL_COLORS[lv]}"></div>
+      ${LEVEL_NAMES[lv]}
+    </div>`;
+    exs.forEach(ex => {
+      const btn = document.createElement('button');
+      btn.className = 'ex-btn' + (currentId === ex.id ? ' active' : '') + (done.includes(ex.id) ? ' done' : '');
+      btn.textContent = (done.includes(ex.id) ? '✓ ' : '') + ex.title;
+      btn.onclick = () => showExercise(ex.id);
+      div.appendChild(btn);
+    });
+    sb.appendChild(div);
+  });
+}
+
+// ======================== HOME ========================
+function showHome() {
+  currentId = null;
+  renderSidebar();
+  const mc = document.getElementById('mainContent');
+  const levelStats = LEVELS.map(lv => {
+    const exs = EXERCISES.filter(e => e.level === lv);
+    const doneCount = exs.filter(e => done.includes(e.id)).length;
+    return { lv, exs, doneCount };
+  });
+
+  mc.innerHTML = `
+    <div class="home-view">
+      <div class="home-title">Exam Rank 02<br><span>Practice Mode</span></div>
+      <p class="home-desc">Todos los ejercicios del examen de 42. Con enunciados, soluciones y pistas. 6 días, tú puedes.<br>
+      <strong style="color:var(--accent)">Consejo:</strong> practica escribir sin mirar la solución. Usa las pistas solo si te bloqueas.</p>
+      <div class="level-cards">
+        ${levelStats.map(({lv, exs, doneCount}) => `
+          <div class="level-card" onclick="showLevel(${lv})" style="border-top:3px solid ${LEVEL_COLORS[lv]}">
+            <div class="lc-l" style="color:${LEVEL_COLORS[lv]}">NIVEL ${lv}</div>
+            <div class="lc-name">${exs.length} ejercicios</div>
+            <div class="lc-count">${doneCount}/${exs.length} completados</div>
+            <div class="lc-badge" style="background:${LEVEL_COLORS[lv]}22;color:${LEVEL_COLORS[lv]}">
+              ${lv===1?'Básico':lv===2?'Intermedio':lv===3?'Avanzado':'Experto'}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:2px;">Estructura del examen</div>
+        <div style="font-size:13px;line-height:2;color:var(--text);">
+          En el examen se te dan <strong style="color:var(--accent)">4 ejercicios</strong>, uno de cada nivel.<br>
+          El nivel 1 y 2 son casi seguros. El 3 y 4 requieren más práctica.<br>
+          Tienes <strong style="color:var(--accent)">3 intentos</strong> por ejercicio.<br>
+          Tiempo total: <strong style="color:var(--accent)">3 horas</strong>.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showLevel(lv) {
+  showExercise(EXERCISES.find(e => e.level === lv).id);
+}
+
+// ======================== EXERCISE ========================
+function showExercise(id) {
+  currentId = id;
+  renderSidebar();
+  const ex = EXERCISES.find(e => e.id === id);
+  const mc = document.getElementById('mainContent');
+  const lvColor = LEVEL_COLORS[ex.level];
+
+  // Find nav
+  const allEx = EXERCISES;
+  const idx = allEx.findIndex(e => e.id === id);
+  const prev = allEx[idx - 1];
+  const next = allEx[idx + 1];
+
+  mc.innerHTML = `
+    <div class="ex-view">
+      <div class="ex-breadcrumb">
+        <span style="cursor:pointer;color:var(--accent)" onclick="showHome()">🏠 Inicio</span>
+        <span>›</span>
+        <span>Nivel ${ex.level}</span>
+        <span>›</span>
+        <span style="color:var(--text)">${ex.title}</span>
+      </div>
+
+      <div class="ex-header">
+        <div class="ex-title">${ex.title}</div>
+        <div class="level-badge" style="background:${lvColor}22;color:${lvColor};border:1px solid ${lvColor}44">
+          Nivel ${ex.level}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span class="section-icon">📋</span>
+          ENUNCIADO
+        </div>
+        <div class="section-body">
+          <div class="enunciado">${ex.enunciado}</div>
+          ${ex.ejemplo ? `<div style="margin-top:16px;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:1px;">EJEMPLO</div>
+            <div class="code-block"><pre>${ex.ejemplo}</pre></div>
+          </div>` : ''}
+        </div>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        ${ex.hints.map((h,i) => `
+          <div class="hint-item" id="hint_${i}" style="display:none">${h}</div>
+        `).join('')}
+        <button class="hints-toggle" onclick="toggleHints(${ex.hints.length})">
+          💡 Ver pistas (${ex.hints.length} disponibles)
+        </button>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <span class="section-icon">✅</span>
+          SOLUCIÓN
+          <span style="margin-left:auto;font-size:10px;color:var(--muted)">Intenta resolverlo antes de mirar</span>
+        </div>
+        <div class="section-body">
+          <div class="code-block" id="solutionBlock" style="display:none">
+            <button class="copy-btn" onclick="copySolution()">Copiar</button>
+            <pre id="solutionCode">${ex.solucion}</pre>
+          </div>
+          <button class="btn btn-secondary" id="showSolBtn" onclick="toggleSolution()">
+            🔒 Mostrar solución
+          </button>
+        </div>
+      </div>
+
+      <div class="nav-btns">
+        ${prev ? `<button class="btn btn-secondary" onclick="showExercise('${prev.id}')">← ${prev.title}</button>` : ''}
+        <button class="btn ${done.includes(id) ? 'btn-done' : 'btn-primary'}" onclick="markDone('${id}')">
+          ${done.includes(id) ? '✓ Completado' : '✅ Marcar como completado'}
+        </button>
+        ${next ? `<button class="btn btn-secondary" onclick="showExercise('${next.id}')">${next.title} →</button>` : ''}
+      </div>
+    </div>
+  `;
+
+  window.scrollTo(0,0);
+}
+
+let hintsShown = 0;
+function toggleHints(total) {
+  if (hintsShown < total) {
+    document.getElementById('hint_' + hintsShown).style.display = 'block';
+    hintsShown++;
+  } else {
+    // reset
+    for(let i=0;i<total;i++) {
+      const el = document.getElementById('hint_' + i);
+      if(el) el.style.display = 'none';
+    }
+    hintsShown = 0;
+  }
+}
+
+function toggleSolution() {
+  const block = document.getElementById('solutionBlock');
+  const btn = document.getElementById('showSolBtn');
+  if (block.style.display === 'none') {
+    block.style.display = 'block';
+    btn.textContent = '🔓 Ocultar solución';
+  } else {
+    block.style.display = 'none';
+    btn.textContent = '🔒 Mostrar solución';
+  }
+}
+
+function copySolution() {
+  const code = document.getElementById('solutionCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '¡Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  });
+}
+
+// INIT
+showHome();
+updateProgress();
+</script>
+</body>
+</html>

@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Piscine C — 42</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00ffe0;
+    --accent2: #ff4d6d;
+    --accent3: #ffe066;
+    --text: #e2e2f0;
+    --muted: #6e6e8a;
+    --code-bg: #0d1117;
+    --c00: #00ffe0;
+    --c01: #a78bfa;
+    --c02: #fb923c;
+    --c03: #34d399;
+    --norma: #ff4d6d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+
+  header {
+    position: relative;
+    padding: 60px 40px 40px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    top: -80px; left: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,255,224,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -1px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 500px;
+  }
+
+  .toc-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.01);
+  }
+
+  .toc-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .toc-pill.c00 { border-color: var(--c00); color: var(--c00); }
+  .toc-pill.c01 { border-color: var(--c01); color: var(--c01); }
+  .toc-pill.c02 { border-color: var(--c02); color: var(--c02); }
+  .toc-pill.c03 { border-color: var(--c03); color: var(--c03); }
+  .toc-pill.norma { border-color: var(--norma); color: var(--norma); }
+  .toc-pill:hover { opacity: 0.7; transform: translateY(-1px); }
+
+  main { padding: 0 40px 80px; max-width: 1100px; margin: 0 auto; }
+
+  /* SECTION */
+  .module {
+    margin-top: 60px;
+    scroll-margin-top: 80px;
+  }
+
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .module-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .badge-c00 { background: rgba(0,255,224,0.1); color: var(--c00); border: 1px solid rgba(0,255,224,0.3); }
+  .badge-c01 { background: rgba(167,139,250,0.1); color: var(--c01); border: 1px solid rgba(167,139,250,0.3); }
+  .badge-c02 { background: rgba(251,146,60,0.1); color: var(--c02); border: 1px solid rgba(251,146,60,0.3); }
+  .badge-c03 { background: rgba(52,211,153,0.1); color: var(--c03); border: 1px solid rgba(52,211,153,0.3); }
+  .badge-norma { background: rgba(255,77,109,0.1); color: var(--norma); border: 1px solid rgba(255,77,109,0.3); }
+
+  .module-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  /* CONCEPT INTRO BOX */
+  .concept-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+    color: #c0c0d8;
+  }
+
+  /* EXERCISE CARD */
+  .exercise {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .exercise:hover { border-color: #333355; }
+
+  .ex-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .ex-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .ex-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .ex-difficulty {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .star { color: var(--accent3); }
+
+  .ex-body { padding: 20px; }
+
+  .ex-proto {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+
+  .ex-description {
+    font-size: 0.92rem;
+    color: #b0b0c8;
+    margin-bottom: 14px;
+    line-height: 1.7;
+  }
+
+  .step-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 20px 0 10px;
+  }
+
+  .steps ol {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .steps li {
+    font-size: 0.88rem;
+    color: #c0c0d8;
+    line-height: 1.65;
+  }
+
+  .steps li strong { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+
+  /* CODE BLOCK */
+  .codeblock {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 14px 0;
+    font-size: 0.83rem;
+  }
+
+  .codeblock-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+
+  .filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  pre {
+    padding: 16px;
+    overflow-x: auto;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83rem;
+  }
+
+  /* Syntax highlighting manual */
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .ty { color: #ffcb6b; }
+  .cm { color: #546e7a; font-style: italic; }
+  .st { color: #c3e88d; }
+  .nm { color: #f78c6c; }
+  .op { color: #89ddff; }
+
+  /* ALERT / TIP */
+  .tip {
+    display: flex;
+    gap: 12px;
+    background: rgba(0,255,224,0.04);
+    border: 1px solid rgba(0,255,224,0.15);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 0.88rem;
+    color: #a0d0d0;
+  }
+
+  .tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+
+  .warn {
+    background: rgba(255,77,109,0.05);
+    border-color: rgba(255,77,109,0.2);
+    color: #d0a0a8;
+  }
+
+  .warn-y {
+    background: rgba(255,224,102,0.05);
+    border-color: rgba(255,224,102,0.2);
+    color: #c8c090;
+  }
+
+  /* NORMA SECTION */
+  .norma-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .norma-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .norma-card h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--norma);
+    margin-bottom: 10px;
+  }
+
+  .norma-card ul {
+    padding-left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .norma-card li {
+    font-size: 0.83rem;
+    color: #b0b0c8;
+    line-height: 1.5;
+  }
+
+  .norma-card li strong { color: var(--text); }
+
+  /* WEEK PLAN */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    transition: transform 0.2s;
+  }
+
+  .day-card:hover { transform: translateY(-2px); }
+
+  .day-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .day-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .day-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .task {
+    font-size: 0.82rem;
+    color: #b0b0c8;
+    padding: 5px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .task.done { color: var(--accent); }
+  .task.exam { color: var(--accent3); background: rgba(255,224,102,0.06); }
+
+  /* COLLAPSIBLE */
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+
+  .toggle-arrow {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+
+  details[open] .toggle-arrow { transform: rotate(180deg); }
+
+  details[open] .ex-body { display: block; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #333; }
+
+  @media (max-width: 600px) {
+    header { padding: 40px 20px 30px; }
+    .toc-bar, main { padding-left: 20px; padding-right: 20px; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">42 Piscine · Guía de Estudio · Última Semana</div>
+  <h1>C Piscine<br><span>Guía Completa</span></h1>
+  <p class="subtitle">C00 · C01 · C02 · C03 — Ejercicios paso a paso, conceptos clave y la Norma</p>
+</header>
+
+<div class="toc-bar">
+  <a href="#plan" class="toc-pill norma">📅 Plan Semanal</a>
+  <a href="#norma" class="toc-pill norma">⚠️ La Norma</a>
+  <a href="#c00" class="toc-pill c00">C00 · write & loops</a>
+  <a href="#c01" class="toc-pill c01">C01 · punteros</a>
+  <a href="#c02" class="toc-pill c02">C02 · strings</a>
+  <a href="#c03" class="toc-pill c03">C03 · comparación</a>
+</div>
+
+<main>
+
+<!-- PLAN SEMANAL -->
+<section class="module" id="plan">
+  <div class="module-header">
+    <span class="module-badge badge-norma">Última Semana</span>
+    <h2 class="module-title">Plan de Estudio — 7 días</h2>
+  </div>
+
+  <div class="tip">
+    <span class="tip-icon">💡</span>
+    <span>El examen final no tiene internet. Entrenas ahora para escribir de memoria. El objetivo esta semana es <strong>velocidad + precisión</strong> sin mirar la solución.</span>
+  </div>
+
+  <div class="week-grid">
+    <div class="day-card">
+      <div class="day-label">Día 1</div>
+      <div class="day-title">Repaso C00</div>
+      <div class="day-tasks">
+        <div class="task done">✓ ft_putchar</div>
+        <div class="task done">✓ ft_print_alphabet</div>
+        <div class="task done">✓ ft_print_reverse_alphabet</div>
+        <div class="task done">✓ ft_print_numbers</div>
+        <div class="task done">✓ ft_is_negative</div>
+        <div class="task">→ ft_print_comb (difícil)</div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-label">Día 2</div>
+      <div class="day-title">C00 avanzado + Norma</div>
+      <div class="day-tasks">
+        <div class="task">→ ft_print_comb2</div>
+        <div class="task">→ ft_putnbr</div>
+        <div class="task">→ ft_print_combn (recursión)</div>
+        <div class="task done">✓ Leer norma completa</div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-label">Día 3</div>
+      <div class="day-title">Punteros — C01</div>
+      <div class="day-tasks">
+        <div class="task done">✓ ft_ft</div>
+        <div class="task done">✓ ft_swap</div>
+        <div class="task">→ ft_div_mod</div>
+        <div class="task">→ ft_strlen</div>
+        <div class="task">→ ft_putstr</div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-label">Día 4</div>
+      <div class="day-title">Strings — C02</div>
+      <div class="day-tasks">
+        <div class="task done">✓ ft_strcpy</div>
+        <div class="task">→ ft_strncpy</div>
+        <div class="task">→ ft_str_is_alpha/numeric</div>
+        <div class="task">→ ft_strupcase / strlowcase</div>
+        <div class="task">→ ft_strcapitalize</div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-label">Día 5</div>
+      <div class="day-title">Comparación — C03</div>
+      <div class="day-tasks">
+        <div class="task">→ ft_strcmp</div>
+        <div class="task">→ ft_strncmp</div>
+        <div class="task">→ ft_strcat / ft_strncat</div>
+        <div class="task">→ ft_strstr</div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-label">Día 6</div>
+      <div class="day-title">Simulacro de examen</div>
+      <div class="day-tasks">
+        <div class="task exam">🎯 Cerrar documentación</div>
+        <div class="task exam">🎯 Elegir 3 ejs al azar</div>
+        <div class="task exam">🎯 Resolver en 30min cada uno</div>
+        <div class="task exam">🎯 Compilar con -Wall -Wextra -Werror</div>
+      </div>
+    </div>
+    <div class="day-card">
+      <div class="day-label">Día 7</div>
+      <div class="day-title">Repaso final</div>
+      <div class="day-tasks">
+        <div class="task exam">🎯 Los que fallaste ayer</div>
+        <div class="task exam">🎯 ft_putnbr de memoria</div>
+        <div class="task exam">🎯 ft_print_comb de memoria</div>
+        <div class="task done">✓ Descanso — tú puedes</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NORMA -->
+<section class="module" id="norma">
+  <div class="module-header">
+    <span class="module-badge badge-norma">Norma v4</span>
+    <h2 class="module-title">La Norma — Reglas Críticas</h2>
+  </div>
+
+  <div class="tip warn">
+    <span class="tip-icon">⛔</span>
+    <span>Violar la Norma = <strong>0 automático</strong> aunque el código funcione perfectamente. La Moulinette y tus evaluadores lo comprobarán siempre.</span>
+  </div>
+
+  <div class="norma-grid">
+    <div class="norma-card">
+      <h4>Funciones</h4>
+      <ul>
+        <li>Máximo <strong>25 líneas</strong> por función</li>
+        <li>Máximo <strong>4 parámetros</strong></li>
+        <li>Máximo <strong>5 variables</strong> por función</li>
+        <li>Sin argumentos → prototipo con <strong>void</strong></li>
+        <li>El return va entre <strong>paréntesis</strong>: <code>return (val);</code></li>
+        <li>Máximo <strong>5 funciones</strong> por archivo .c</li>
+      </ul>
+    </div>
+    <div class="norma-card">
+      <h4>Cosas Prohibidas</h4>
+      <ul>
+        <li><strong>for</strong> → usar while</li>
+        <li><strong>do...while</strong></li>
+        <li><strong>switch / case</strong></li>
+        <li><strong>goto</strong></li>
+        <li>Operador <strong>ternario ?</strong></li>
+        <li>VLAs (arrays de longitud variable)</li>
+        <li>Asignaciones múltiples: <code>a = b = 0</code></li>
+      </ul>
+    </div>
+    <div class="norma-card">
+      <h4>Formato</h4>
+      <ul>
+        <li>Indentación con <strong>tabulaciones</strong> (no espacios)</li>
+        <li>Líneas máximo <strong>80 columnas</strong></li>
+        <li>Una instrucción por línea</li>
+        <li>Asterisco pegado al <strong>nombre</strong>: <code>char *str</code></li>
+        <li>Una declaración de variable por línea</li>
+        <li>Declaraciones al inicio de la función</li>
+        <li>Línea vacía entre declaraciones y código</li>
+      </ul>
+    </div>
+    <div class="norma-card">
+      <h4>Header 42 obligatorio</h4>
+      <ul>
+        <li>Todos los .c y .h deben empezar con el <strong>header estándar de 42</strong></li>
+        <li>En vim: <strong>:Stdheader</strong> o <strong>F1</strong></li>
+        <li>En emacs: <strong>C-c C-h</strong></li>
+        <li>Ejecutar norminette con: <code>-R CheckForbiddenSourceHeader</code></li>
+      </ul>
+    </div>
+    <div class="norma-card">
+      <h4>Denominación</h4>
+      <ul>
+        <li>Structs empiezan con <strong>s_</strong></li>
+        <li>Typedefs empiezan con <strong>t_</strong></li>
+        <li>Unions empiezan con <strong>u_</strong></li>
+        <li>Enums empiezan con <strong>e_</strong></li>
+        <li>Macros y defines en <strong>MAYÚSCULAS</strong></li>
+      </ul>
+    </div>
+    <div class="norma-card">
+      <h4>Compilación</h4>
+      <ul>
+        <li>Siempre: <code>cc -Wall -Wextra -Werror</code></li>
+        <li>0 warnings permitidos</li>
+        <li>Sin segfault, bus error, double free</li>
+        <li>Comportamiento sin definir = puede ser evaluado como 0</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="codeblock" style="margin-top:24px">
+    <div class="codeblock-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="filename">ejemplo_norma_correcto.c</span>
+    </div>
+    <pre><code><span class="cm">/* Header 42 aquí arriba (obligatorio) */</span>
+
+<span class="ty">int</span>	<span class="fn">ft_strlen</span>(<span class="ty">char</span> *str)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (str[i])
+		i++;
+	<span class="kw">return</span> (i);
+}</code></pre>
+  </div>
+
+  <div class="tip warn-y">
+    <span class="tip-icon">⚠️</span>
+    <span>Nota el <strong>tab</strong> entre el tipo de retorno y el nombre de función (<code>int⇥ft_strlen</code>), el asterisco pegado al nombre (<code>char *str</code>), y el return con paréntesis.</span>
+  </div>
+</section>
+
+<!-- C00 -->
+<section class="module" id="c00">
+  <div class="module-header">
+    <span class="module-badge badge-c00">C 00</span>
+    <h2 class="module-title">C 00 — write, loops, ASCII</h2>
+  </div>
+
+  <div class="concept-intro">
+    <strong>Concepto clave:</strong> En C, no tienes <code>printf</code> — usas <code>write(1, &c, 1)</code> para imprimir un carácter. Todo lo demás se construye a partir de ahí. Los caracteres son números: 'a' = 97, '0' = 48, 'z' = 122.
+  </div>
+
+  <!-- EX00 -->
+  <details class="exercise" open>
+    <summary class="ex-header">
+      <span class="ex-number">EX 00</span>
+      <span class="ex-name">ft_putchar</span>
+      <span class="ex-difficulty"><span class="star">★</span>☆☆☆ Básico</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_putchar(char c);</div>
+      <p class="ex-description">Muestra el carácter <code>c</code> usando <code>write</code>. Es la función base de toda la Piscine.</p>
+      <div class="step-title">→ Pasos</div>
+      <div class="steps"><ol>
+        <li>La función recibe un <strong>char c</strong> como parámetro.</li>
+        <li>Llama a <strong>write(1, &c, 1)</strong> — primer parámetro = stdout (1), segundo = dirección del char, tercero = 1 byte.</li>
+        <li>No devuelve nada (<strong>void</strong>).</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="filename">ft_putchar.c</span>
+        </div>
+        <pre><code><span class="kw">#include</span> <span class="st">&lt;unistd.h&gt;</span>
+
+<span class="ty">void</span>	<span class="fn">ft_putchar</span>(<span class="ty">char</span> c)
+{
+	<span class="fn">write</span>(<span class="nm">1</span>, <span class="op">&amp;</span>c, <span class="nm">1</span>);
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span><code>&c</code> es la dirección de memoria de c. <code>write</code> necesita un puntero, no el valor directamente.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- EX01 -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 01</span>
+      <span class="ex-name">ft_print_alphabet</span>
+      <span class="ex-difficulty"><span class="star">★</span>☆☆☆ Básico</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_print_alphabet(void);</div>
+      <p class="ex-description">Imprime el alfabeto en minúsculas de 'a' a 'z' en una sola línea.</p>
+      <div class="step-title">→ Pasos</div>
+      <div class="steps"><ol>
+        <li>Declara una variable <strong>char c</strong> e inicialízala a <strong>'a'</strong> (= 97 en ASCII).</li>
+        <li>Con un <strong>while</strong>, iterar mientras <code>c &lt;= 'z'</code>.</li>
+        <li>Dentro del loop: llama a <strong>ft_putchar(c)</strong> y luego <strong>c++</strong>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="filename">ft_print_alphabet.c</span>
+        </div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_print_alphabet</span>(<span class="ty">void</span>)
+{
+	<span class="ty">char</span>	c;
+
+	c = <span class="st">'a'</span>;
+	<span class="kw">while</span> (c <span class="op">&lt;=</span> <span class="st">'z'</span>)
+	{
+		<span class="fn">ft_putchar</span>(c);
+		c++;
+	}
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- EX02 -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 02</span>
+      <span class="ex-name">ft_print_reverse_alphabet</span>
+      <span class="ex-difficulty"><span class="star">★</span>☆☆☆ Básico</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_print_reverse_alphabet(void);</div>
+      <p class="ex-description">Imprime el alfabeto en minúsculas de 'z' a 'a'.</p>
+      <div class="step-title">→ Pasos</div>
+      <div class="steps"><ol>
+        <li>Declara <strong>char c = 'z'</strong>.</li>
+        <li>While loop mientras <code>c &gt;= 'a'</code>.</li>
+        <li>Imprime c, luego <strong>c--</strong>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_print_reverse_alphabet.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_print_reverse_alphabet</span>(<span class="ty">void</span>)
+{
+	<span class="ty">char</span>	c;
+
+	c = <span class="st">'z'</span>;
+	<span class="kw">while</span> (c <span class="op">&gt;=</span> <span class="st">'a'</span>)
+	{
+		<span class="fn">ft_putchar</span>(c);
+		c--;
+	}
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- EX03 -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 03</span>
+      <span class="ex-name">ft_print_numbers</span>
+      <span class="ex-difficulty"><span class="star">★</span>☆☆☆ Básico</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_print_numbers(void);</div>
+      <p class="ex-description">Imprime todos los dígitos del 0 al 9 en una sola línea.</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_print_numbers.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_print_numbers</span>(<span class="ty">void</span>)
+{
+	<span class="ty">char</span>	c;
+
+	c = <span class="st">'0'</span>;
+	<span class="kw">while</span> (c <span class="op">&lt;=</span> <span class="st">'9'</span>)
+	{
+		<span class="fn">ft_putchar</span>(c);
+		c++;
+	}
+}</code></pre>
+      </div>
+      <div class="tip warn-y">
+        <span class="tip-icon">⚠️</span>
+        <span>El 0 aquí es el <strong>carácter</strong> '0' (ASCII 48), no el entero 0. Siempre usa comillas simples para chars.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- EX04 -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 04</span>
+      <span class="ex-name">ft_is_negative</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_is_negative(int n);</div>
+      <p class="ex-description">Muestra 'N' si n es negativo, 'P' si es positivo o cero.</p>
+      <div class="tip warn">
+        <span class="tip-icon">🚨</span>
+        <span>No puedes usar el operador ternario (<code>?</code>) — está prohibido por la Norma. Usa <strong>if / else</strong>.</span>
+      </div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_is_negative.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_is_negative</span>(<span class="ty">int</span> n)
+{
+	<span class="kw">if</span> (n <span class="op">&lt;</span> <span class="nm">0</span>)
+		<span class="fn">ft_putchar</span>(<span class="st">'N'</span>);
+	<span class="kw">else</span>
+		<span class="fn">ft_putchar</span>(<span class="st">'P'</span>);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- EX05 -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 05</span>
+      <span class="ex-name">ft_print_comb</span>
+      <span class="ex-difficulty"><span class="star">★</span><span class="star">★</span><span class="star">★</span>☆ Difícil — suele caer en examen</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_print_comb(void);</div>
+      <p class="ex-description">Imprime todas las combinaciones de 3 dígitos distintos en orden creciente, separadas por <code>, </code>. Resultado esperado: <code>012, 013, ..., 789</code></p>
+      <div class="step-title">→ Razonamiento (3 bucles anidados)</div>
+      <div class="steps"><ol>
+        <li>Necesitas 3 contadores: <strong>a, b, c</strong> (chars de '0' a '9').</li>
+        <li><strong>a</strong> va de '0' a '7' (si a='8', no hay espacio para b y c distintos y mayores).</li>
+        <li><strong>b</strong> va de a+1 a '8'.</li>
+        <li><strong>c</strong> va de b+1 a '9'.</li>
+        <li>Imprime a, b, c. Si no es la última combinación (789), imprime <code>, </code> después.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_print_comb.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_print_comb</span>(<span class="ty">void</span>)
+{
+	<span class="ty">char</span>	a;
+	<span class="ty">char</span>	b;
+	<span class="ty">char</span>	c;
+
+	a = <span class="st">'0'</span>;
+	<span class="kw">while</span> (a <span class="op">&lt;=</span> <span class="st">'7'</span>)
+	{
+		b = a + <span class="nm">1</span>;
+		<span class="kw">while</span> (b <span class="op">&lt;=</span> <span class="st">'8'</span>)
+		{
+			c = b + <span class="nm">1</span>;
+			<span class="kw">while</span> (c <span class="op">&lt;=</span> <span class="st">'9'</span>)
+			{
+				<span class="fn">ft_putchar</span>(a);
+				<span class="fn">ft_putchar</span>(b);
+				<span class="fn">ft_putchar</span>(c);
+				<span class="kw">if</span> (!(a <span class="op">==</span> <span class="st">'7'</span> <span class="op">&amp;&amp;</span> b <span class="op">==</span> <span class="st">'8'</span> <span class="op">&amp;&amp;</span> c <span class="op">==</span> <span class="st">'9'</span>))
+				{
+					<span class="fn">ft_putchar</span>(<span class="st">','</span>);
+					<span class="fn">ft_putchar</span>(<span class="st">' '</span>);
+				}
+				c++;
+			}
+			b++;
+		}
+		a++;
+	}
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>La condición <code>!(a == '7' && b == '8' && c == '9')</code> evita imprimir la coma después del último elemento (789).</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- EX07 ft_putnbr -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 07</span>
+      <span class="ex-name">ft_putnbr</span>
+      <span class="ex-difficulty"><span class="star">★</span><span class="star">★</span><span class="star">★</span>☆ Difícil — clásico de examen</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_putnbr(int nb);</div>
+      <p class="ex-description">Muestra el entero <code>nb</code>. Debe funcionar para <strong>todos los valores</strong> de int, incluyendo negativos y <code>INT_MIN</code> (-2147483648).</p>
+      <div class="step-title">→ Razonamiento</div>
+      <div class="steps"><ol>
+        <li>Caso especial: si <code>nb == -2147483648</code>, imprímelo directamente (no cabe en int positivo).</li>
+        <li>Si nb es negativo, imprime '-' y niega nb.</li>
+        <li>Si nb tiene más de un dígito (nb >= 10), llama a ft_putnbr recursivamente con nb/10.</li>
+        <li>Imprime el último dígito: <code>ft_putchar('0' + nb % 10)</code>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_putnbr.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_putnbr</span>(<span class="ty">int</span> nb)
+{
+	<span class="kw">if</span> (nb <span class="op">==</span> <span class="nm">-2147483648</span>)
+	{
+		<span class="fn">ft_putchar</span>(<span class="st">'-'</span>);
+		<span class="fn">ft_putchar</span>(<span class="st">'2'</span>);
+		<span class="fn">ft_putnbr</span>(<span class="nm">147483648</span>);
+		<span class="kw">return</span> ;
+	}
+	<span class="kw">if</span> (nb <span class="op">&lt;</span> <span class="nm">0</span>)
+	{
+		<span class="fn">ft_putchar</span>(<span class="st">'-'</span>);
+		nb = -nb;
+	}
+	<span class="kw">if</span> (nb <span class="op">&gt;=</span> <span class="nm">10</span>)
+		<span class="fn">ft_putnbr</span>(nb <span class="op">/</span> <span class="nm">10</span>);
+	<span class="fn">ft_putchar</span>(<span class="st">'0'</span> <span class="op">+</span> nb <span class="op">%</span> <span class="nm">10</span>);
+}</code></pre>
+      </div>
+      <div class="tip warn">
+        <span class="tip-icon">🚨</span>
+        <span><code>INT_MIN</code> = -2147483648. Si haces <code>nb = -nb</code> directamente, hay overflow porque 2147483648 no cabe en un int positivo (máximo 2147483647).</span>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- C01 -->
+<section class="module" id="c01">
+  <div class="module-header">
+    <span class="module-badge badge-c01">C 01</span>
+    <h2 class="module-title">C 01 — Punteros</h2>
+  </div>
+
+  <div class="concept-intro">
+    <strong>Concepto clave:</strong> Un puntero es una variable que <em>guarda una dirección de memoria</em>. Con <code>*ptr</code> accedes al valor que hay en esa dirección. Con <code>&var</code> obtienes la dirección de una variable. Modificar <code>*ptr</code> dentro de una función afecta al valor original.
+  </div>
+
+  <div class="codeblock" style="margin-bottom:24px">
+    <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">punteros_concepto.c</span></div>
+    <pre><code><span class="ty">int</span>	x = <span class="nm">10</span>;
+<span class="ty">int</span>	*p = <span class="op">&amp;</span>x;  <span class="cm">// p guarda la dirección de x</span>
+
+<span class="op">*</span>p = <span class="nm">42</span>;    <span class="cm">// Modifica el valor en esa dirección</span>
+<span class="cm">// Ahora x == 42</span></code></pre>
+  </div>
+
+  <!-- ft_ft -->
+  <details class="exercise" open>
+    <summary class="ex-header">
+      <span class="ex-number">EX 00</span>
+      <span class="ex-name">ft_ft</span>
+      <span class="ex-difficulty"><span class="star">★</span>☆☆☆ Básico</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_ft(int *nbr);</div>
+      <p class="ex-description">Recibe un puntero a int y le asigna el valor 42.</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_ft.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_ft</span>(<span class="ty">int</span> *nbr)
+{
+	<span class="op">*</span>nbr = <span class="nm">42</span>;
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span><code>*nbr = 42</code> desreferencia el puntero y modifica el valor almacenado en esa dirección. No modifica el puntero en sí.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_swap -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 02</span>
+      <span class="ex-name">ft_swap</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Medio — clásico de examen</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_swap(int *a, int *b);</div>
+      <p class="ex-description">Intercambia el contenido de dos enteros a través de sus punteros.</p>
+      <div class="step-title">→ Pasos</div>
+      <div class="steps"><ol>
+        <li>Necesitas una variable temporal <strong>tmp</strong> para guardar uno de los valores.</li>
+        <li>Guarda el valor de a en tmp: <code>tmp = *a</code>.</li>
+        <li>Asigna el valor de b a a: <code>*a = *b</code>.</li>
+        <li>Asigna tmp a b: <code>*b = tmp</code>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_swap.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_swap</span>(<span class="ty">int</span> *a, <span class="ty">int</span> *b)
+{
+	<span class="ty">int</span>	tmp;
+
+	tmp = <span class="op">*</span>a;
+	<span class="op">*</span>a = <span class="op">*</span>b;
+	<span class="op">*</span>b = tmp;
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_div_mod -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 03</span>
+      <span class="ex-name">ft_div_mod</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_div_mod(int a, int b, int *div, int *mod);</div>
+      <p class="ex-description">Divide a entre b. Guarda el cociente en <code>*div</code> y el resto en <code>*mod</code>.</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_div_mod.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_div_mod</span>(<span class="ty">int</span> a, <span class="ty">int</span> b, <span class="ty">int</span> *div, <span class="ty">int</span> *mod)
+{
+	<span class="op">*</span>div = a <span class="op">/</span> b;
+	<span class="op">*</span>mod = a <span class="op">%</span> b;
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_putstr -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 05</span>
+      <span class="ex-name">ft_putstr</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Medio — muy frecuente en examen</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_putstr(char *str);</div>
+      <p class="ex-description">Muestra los caracteres de un string uno a uno. Un string en C es un array de chars terminado en <code>'\0'</code> (null terminator).</p>
+      <div class="step-title">→ Pasos</div>
+      <div class="steps"><ol>
+        <li>Un string en C termina en el carácter <strong>'\0'</strong> (valor 0).</li>
+        <li>Itera con while mientras <code>*str != '\0'</code> (o simplemente <code>*str</code> porque '\0' es falso).</li>
+        <li>En cada iteración imprime <code>*str</code> y avanza el puntero con <code>str++</code>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_putstr.c</span></div>
+        <pre><code><span class="ty">void</span>	<span class="fn">ft_putstr</span>(<span class="ty">char</span> *str)
+{
+	<span class="kw">while</span> (<span class="op">*</span>str)
+	{
+		<span class="fn">ft_putchar</span>(<span class="op">*</span>str);
+		str++;
+	}
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_strlen -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 06</span>
+      <span class="ex-name">ft_strlen</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Básico-Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_strlen(char *str);</div>
+      <p class="ex-description">Cuenta y devuelve el número de caracteres del string (sin contar el '\0').</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_strlen.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_strlen</span>(<span class="ty">char</span> *str)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (str[i])
+		i++;
+	<span class="kw">return</span> (i);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- C02 -->
+<section class="module" id="c02">
+  <div class="module-header">
+    <span class="module-badge badge-c02">C 02</span>
+    <h2 class="module-title">C 02 — Strings y manipulación de caracteres</h2>
+  </div>
+
+  <div class="concept-intro">
+    <strong>Concepto clave:</strong> Un string en C es <code>char *</code> — un puntero al primer carácter de una secuencia terminada en <code>'\0'</code>. Puedes acceder a cada char con <code>str[i]</code> o con <code>*(str + i)</code>. Los rangos ASCII útiles: 'A'=65…'Z'=90, 'a'=97…'z'=122, '0'=48…'9'=57.
+  </div>
+
+  <!-- ft_strcpy -->
+  <details class="exercise" open>
+    <summary class="ex-header">
+      <span class="ex-number">EX 00</span>
+      <span class="ex-name">ft_strcpy</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Básico-Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">char *ft_strcpy(char *dest, char *src);</div>
+      <p class="ex-description">Copia el string <code>src</code> en <code>dest</code> (incluyendo el '\0'). Devuelve <code>dest</code>.</p>
+      <div class="step-title">→ Pasos</div>
+      <div class="steps"><ol>
+        <li>Itera con un índice <strong>i</strong> mientras <code>src[i] != '\0'</code>.</li>
+        <li>Copia cada carácter: <code>dest[i] = src[i]</code>.</li>
+        <li>Después del loop, añade el terminador: <code>dest[i] = '\0'</code>.</li>
+        <li>Devuelve <strong>dest</strong>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_strcpy.c</span></div>
+        <pre><code><span class="ty">char</span>	*<span class="fn">ft_strcpy</span>(<span class="ty">char</span> *dest, <span class="ty">char</span> *src)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (src[i])
+	{
+		dest[i] = src[i];
+		i++;
+	}
+	dest[i] = <span class="st">'\0'</span>;
+	<span class="kw">return</span> (dest);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_str_is_alpha -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 02</span>
+      <span class="ex-name">ft_str_is_alpha</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_str_is_alpha(char *str);</div>
+      <p class="ex-description">Devuelve 1 si el string contiene solo letras (a-z, A-Z). Devuelve 0 si hay otro tipo. String vacío devuelve 1.</p>
+      <div class="step-title">→ Lógica de validación</div>
+      <div class="steps"><ol>
+        <li>Si <code>*str == '\0'</code> (string vacío), devuelve 1 directamente.</li>
+        <li>Itera por cada carácter.</li>
+        <li>Si el carácter no está entre 'a'-'z' NI entre 'A'-'Z', devuelve 0.</li>
+        <li>Si termina el loop sin fallar, devuelve 1.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_str_is_alpha.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_str_is_alpha</span>(<span class="ty">char</span> *str)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (str[i])
+	{
+		<span class="kw">if</span> (!((str[i] <span class="op">&gt;=</span> <span class="st">'a'</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&lt;=</span> <span class="st">'z'</span>)
+			<span class="op">||</span> (str[i] <span class="op">&gt;=</span> <span class="st">'A'</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&lt;=</span> <span class="st">'Z'</span>)))
+			<span class="kw">return</span> (<span class="nm">0</span>);
+		i++;
+	}
+	<span class="kw">return</span> (<span class="nm">1</span>);
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>El mismo patrón sirve para <strong>ft_str_is_numeric</strong> (solo '0'-'9'), <strong>ft_str_is_lowercase</strong> (solo 'a'-'z'), <strong>ft_str_is_uppercase</strong> (solo 'A'-'Z'), y <strong>ft_str_is_printable</strong> (ASCII 32-126).</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_strupcase -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 07</span>
+      <span class="ex-name">ft_strupcase</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">char *ft_strupcase(char *str);</div>
+      <p class="ex-description">Pone cada letra en mayúscula. Devuelve <code>str</code>.</p>
+      <div class="step-title">→ Truco ASCII</div>
+      <div class="steps"><ol>
+        <li>La diferencia entre 'a' y 'A' es exactamente 32 en ASCII.</li>
+        <li>Para convertir minúscula → mayúscula: <code>str[i] -= 32</code> (o <code>str[i] = str[i] - 32</code>).</li>
+        <li>Solo aplica si el carácter está entre 'a' y 'z'.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_strupcase.c</span></div>
+        <pre><code><span class="ty">char</span>	*<span class="fn">ft_strupcase</span>(<span class="ty">char</span> *str)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (str[i])
+	{
+		<span class="kw">if</span> (str[i] <span class="op">&gt;=</span> <span class="st">'a'</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&lt;=</span> <span class="st">'z'</span>)
+			str[i] -= <span class="nm">32</span>;
+		i++;
+	}
+	<span class="kw">return</span> (str);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_strcapitalize -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 09</span>
+      <span class="ex-name">ft_strcapitalize</span>
+      <span class="ex-difficulty"><span class="star">★</span><span class="star">★</span><span class="star">★</span>☆ Difícil</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">char *ft_strcapitalize(char *str);</div>
+      <p class="ex-description">Capitaliza la primera letra de cada "palabra" (secuencia alfanumérica), el resto en minúscula. Ejemplo: <code>salut, comment tu vas ? 42mots</code> → <code>Salut, Comment Tu Vas ? 42mots</code></p>
+      <div class="step-title">→ Razonamiento</div>
+      <div class="steps"><ol>
+        <li>Necesitas saber si estás al inicio de una palabra. Usa una variable <strong>new_word</strong> (1 = inicio de palabra, 0 = dentro de palabra).</li>
+        <li>Empieza con <code>new_word = 1</code> (el primer carácter siempre es inicio).</li>
+        <li>Si el char actual es alfanumérico (letra o dígito): si <code>new_word == 1</code>, pónlo en mayúscula; si no, en minúscula. Luego <code>new_word = 0</code>.</li>
+        <li>Si el char no es alfanumérico (espacio, coma, etc.): <code>new_word = 1</code>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_strcapitalize.c</span></div>
+        <pre><code><span class="ty">char</span>	*<span class="fn">ft_strcapitalize</span>(<span class="ty">char</span> *str)
+{
+	<span class="ty">int</span>	i;
+	<span class="ty">int</span>	new_word;
+
+	i = <span class="nm">0</span>;
+	new_word = <span class="nm">1</span>;
+	<span class="kw">while</span> (str[i])
+	{
+		<span class="kw">if</span> ((str[i] <span class="op">&gt;=</span> <span class="st">'a'</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&lt;=</span> <span class="st">'z'</span>)
+			<span class="op">||</span> (str[i] <span class="op">&gt;=</span> <span class="st">'A'</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&lt;=</span> <span class="st">'Z'</span>)
+			<span class="op">||</span> (str[i] <span class="op">&gt;=</span> <span class="st">'0'</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&lt;=</span> <span class="st">'9'</span>))
+		{
+			<span class="kw">if</span> (new_word <span class="op">==</span> <span class="nm">1</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&gt;=</span> <span class="st">'a'</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&lt;=</span> <span class="st">'z'</span>)
+				str[i] -= <span class="nm">32</span>;
+			<span class="kw">else</span> <span class="kw">if</span> (new_word <span class="op">==</span> <span class="nm">0</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&gt;=</span> <span class="st">'A'</span> <span class="op">&amp;&amp;</span> str[i] <span class="op">&lt;=</span> <span class="st">'Z'</span>)
+				str[i] += <span class="nm">32</span>;
+			new_word = <span class="nm">0</span>;
+		}
+		<span class="kw">else</span>
+			new_word = <span class="nm">1</span>;
+		i++;
+	}
+	<span class="kw">return</span> (str);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- C03 -->
+<section class="module" id="c03">
+  <div class="module-header">
+    <span class="module-badge badge-c03">C 03</span>
+    <h2 class="module-title">C 03 — Comparación y concatenación de strings</h2>
+  </div>
+
+  <div class="concept-intro">
+    <strong>Concepto clave:</strong> Comparar strings en C no es <code>s1 == s2</code> — eso compara punteros. Hay que comparar carácter a carácter. La diferencia entre dos chars es lo que devuelven <code>strcmp</code> y sus variantes: negativo si s1 &lt; s2, 0 si son iguales, positivo si s1 &gt; s2.
+  </div>
+
+  <!-- ft_strcmp -->
+  <details class="exercise" open>
+    <summary class="ex-header">
+      <span class="ex-number">EX 00</span>
+      <span class="ex-name">ft_strcmp</span>
+      <span class="ex-difficulty"><span class="star">★</span><span class="star">★</span>☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_strcmp(char *s1, char *s2);</div>
+      <p class="ex-description">Compara dos strings. Devuelve 0 si son iguales, negativo si s1 &lt; s2, positivo si s1 &gt; s2.</p>
+      <div class="step-title">→ Razonamiento</div>
+      <div class="steps"><ol>
+        <li>Itera mientras <code>s1[i] == s2[i]</code> Y el carácter no sea '\0'.</li>
+        <li>Cuando el loop termina, devuelve la diferencia: <code>(unsigned char)s1[i] - (unsigned char)s2[i]</code>.</li>
+        <li>Si llegamos al final iguales, s1[i] = s2[i] = '\0', así que la diferencia es 0.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_strcmp.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_strcmp</span>(<span class="ty">char</span> *s1, <span class="ty">char</span> *s2)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (s1[i] <span class="op">==</span> s2[i] <span class="op">&amp;&amp;</span> s1[i] <span class="op">!=</span> <span class="st">'\0'</span>)
+		i++;
+	<span class="kw">return</span> ((<span class="ty">unsigned char</span>)s1[i] <span class="op">-</span> (<span class="ty">unsigned char</span>)s2[i]);
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>Se usa <code>unsigned char</code> para evitar problemas con caracteres con valores > 127 (extendidos). Es el comportamiento estándar de la libc.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_strcat -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 02</span>
+      <span class="ex-name">ft_strcat</span>
+      <span class="ex-difficulty"><span class="star">★</span>★☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">char *ft_strcat(char *dest, char *src);</div>
+      <p class="ex-description">Concatena <code>src</code> al final de <code>dest</code>. Devuelve <code>dest</code>.</p>
+      <div class="step-title">→ Pasos</div>
+      <div class="steps"><ol>
+        <li>Primero, busca el final de <code>dest</code>: avanza un índice hasta llegar al '\0' de dest.</li>
+        <li>Desde ese punto, copia todos los caracteres de <code>src</code>.</li>
+        <li>Añade '\0' al final.</li>
+        <li>Devuelve <code>dest</code>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_strcat.c</span></div>
+        <pre><code><span class="ty">char</span>	*<span class="fn">ft_strcat</span>(<span class="ty">char</span> *dest, <span class="ty">char</span> *src)
+{
+	<span class="ty">int</span>	i;
+	<span class="ty">int</span>	j;
+
+	i = <span class="nm">0</span>;
+	j = <span class="nm">0</span>;
+	<span class="kw">while</span> (dest[i])
+		i++;
+	<span class="kw">while</span> (src[j])
+	{
+		dest[i] = src[j];
+		i++;
+		j++;
+	}
+	dest[i] = <span class="st">'\0'</span>;
+	<span class="kw">return</span> (dest);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_strstr -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 04</span>
+      <span class="ex-name">ft_strstr</span>
+      <span class="ex-difficulty"><span class="star">★</span><span class="star">★</span><span class="star">★</span>☆ Difícil</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">char *ft_strstr(char *str, char *to_find);</div>
+      <p class="ex-description">Busca la primera aparición de <code>to_find</code> dentro de <code>str</code>. Devuelve el puntero a esa posición, o NULL si no encuentra. Si <code>to_find</code> es vacío, devuelve <code>str</code>.</p>
+      <div class="step-title">→ Razonamiento</div>
+      <div class="steps"><ol>
+        <li>Si <code>to_find[0] == '\0'</code> (string vacío), devuelve <code>str</code>.</li>
+        <li>Para cada posición i de str, comprueba si <code>to_find</code> encaja ahí.</li>
+        <li>Compara carácter a carácter con un índice j.</li>
+        <li>Si llegas al final de to_find sin fallar (<code>to_find[j] == '\0'</code>), devuelve <code>str + i</code>.</li>
+        <li>Si no encontraste nada, devuelve <code>NULL</code> (0).</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_strstr.c</span></div>
+        <pre><code><span class="ty">char</span>	*<span class="fn">ft_strstr</span>(<span class="ty">char</span> *str, <span class="ty">char</span> *to_find)
+{
+	<span class="ty">int</span>	i;
+	<span class="ty">int</span>	j;
+
+	<span class="kw">if</span> (!to_find[<span class="nm">0</span>])
+		<span class="kw">return</span> (str);
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (str[i])
+	{
+		j = <span class="nm">0</span>;
+		<span class="kw">while</span> (str[i <span class="op">+</span> j] <span class="op">==</span> to_find[j] <span class="op">&amp;&amp;</span> to_find[j])
+			j++;
+		<span class="kw">if</span> (!to_find[j])
+			<span class="kw">return</span> (str <span class="op">+</span> i);
+		i++;
+	}
+	<span class="kw">return</span> (<span class="nm">0</span>);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- FOOTER NOTE -->
+<div style="margin-top:60px; padding:24px; border: 1px solid var(--border); border-radius:10px; background: var(--surface); display:flex; gap:14px; align-items:flex-start;">
+  <span style="font-size:1.4rem">🎯</span>
+  <div>
+    <div style="font-weight:700; margin-bottom:6px;">Recuerda para el examen</div>
+    <div style="font-size:0.88rem; color:var(--muted); line-height:1.7;">
+      1. Escribe el <strong style="color:var(--text)">header 42</strong> en cada archivo antes de empezar.<br>
+      2. Compila siempre con <strong style="color:var(--text)">cc -Wall -Wextra -Werror</strong> — 0 warnings.<br>
+      3. <strong style="color:var(--text)">No uses for, switch, ternario (?), ni goto</strong>.<br>
+      4. Declara variables al <strong style="color:var(--text)">inicio de la función</strong>, con línea vacía antes del código.<br>
+      5. <strong style="color:var(--text)">return (valor);</strong> — siempre con paréntesis.<br>
+      6. Máximo <strong style="color:var(--text)">25 líneas</strong> por función.
+    </div>
+  </div>
+</div>
+
+</main>
+</body>
+</html>

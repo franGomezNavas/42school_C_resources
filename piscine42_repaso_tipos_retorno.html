@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>42 Piscine — Guía de Repaso C</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #00e5ff;
+    --accent2: #ff3d71;
+    --accent3: #a8ff3e;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --code-bg: #0d0d15;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 60px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 60px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
+  }
+
+  h1 {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 60px;
+  }
+
+  nav a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  nav a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+  }
+
+  /* SECTIONS */
+  section {
+    margin-bottom: 70px;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 28px 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h3::before {
+    content: '//';
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  p {
+    color: #b0b0c8;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+  }
+
+  /* CODE BLOCKS */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 14px 0;
+    position: relative;
+  }
+
+  pre::before {
+    content: attr(data-lang);
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .kw   { color: #ff3d71; }   /* keywords */
+  .type { color: #00e5ff; }   /* types */
+  .fn   { color: #a8ff3e; }   /* functions */
+  .num  { color: #ffaa00; }   /* numbers */
+  .cmt  { color: #4a4a60; }   /* comments */
+  .str  { color: #ffdd57; }   /* strings */
+  .op   { color: #cc88ff; }   /* operators */
+
+  /* TRACE BLOCK */
+  .trace {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    padding: 20px 24px;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.9;
+    color: #a0a0b8;
+  }
+
+  .trace .ok   { color: var(--accent3); }
+  .trace .fail { color: var(--accent2); }
+  .trace .step { color: var(--accent); }
+
+  /* TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83rem;
+  }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 2px solid var(--accent);
+  }
+
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: #b0b0c8;
+  }
+
+  tr:hover td {
+    background: rgba(0,229,255,0.03);
+  }
+
+  td:first-child { color: var(--accent); font-weight: 600; }
+  td:nth-child(2) { color: var(--accent3); }
+
+  /* CALLOUT */
+  .callout {
+    background: rgba(168,255,62,0.05);
+    border: 1px solid rgba(168,255,62,0.2);
+    border-left: 3px solid var(--accent3);
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 0.9rem;
+  }
+
+  .callout strong {
+    color: var(--accent3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .callout p { margin: 0; color: #b0b0c8; }
+
+  /* WARNING */
+  .warning {
+    background: rgba(255,61,113,0.05);
+    border: 1px solid rgba(255,61,113,0.2);
+    border-left: 3px solid var(--accent2);
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 0.9rem;
+  }
+
+  .warning strong {
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .warning p { margin: 0; color: #b0b0c8; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 30px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">42 PISCINE — C</div>
+    <h1>Guía de <span>Repaso</span><br>Examen Final</h1>
+    <p class="subtitle">// tipos de retorno</p>
+  </header>
+
+  <nav>
+    <a href="#tipos">Tipos de retorno</a>
+    <a href="#regla">Regla de oro</a>
+  </nav>
+
+  <!-- ===================== TIPOS DE RETORNO ===================== -->
+  <section id="tipos">
+    <div class="section-label">referencia</div>
+    <h2>Tipos de retorno</h2>
+
+    <p>La palabra antes del nombre de la función indica qué tipo de dato devuelve.</p>
+
+    <h3>void — no devuelve nada</h3>
+    <pre data-lang="C"><code><span class="type">void</span>    <span class="fn">ft_putchar</span>(<span class="type">char</span> c)
+{
+    <span class="fn">write</span>(<span class="num">1</span>, &c, <span class="num">1</span>);
+    <span class="cmt">// No hay return con valor</span>
+}</code></pre>
+
+    <h3>int — devuelve número entero</h3>
+    <pre data-lang="C"><code><span class="type">int</span>     <span class="fn">ft_strlen</span>(<span class="type">char</span> *str)
+{
+    <span class="type">int</span> i;
+
+    i = <span class="num">0</span>;
+    <span class="kw">while</span> (str[i])
+        i++;
+    <span class="kw">return</span> (i);
+}</code></pre>
+
+    <h3>char — devuelve un solo carácter</h3>
+    <pre data-lang="C"><code><span class="type">char</span>    <span class="fn">ft_toupper</span>(<span class="type">char</span> c)
+{
+    <span class="kw">if</span> (c >= <span class="str">'a'</span> && c <= <span class="str">'z'</span>)
+        <span class="kw">return</span> (c - <span class="num">32</span>);
+    <span class="kw">return</span> (c);
+}</code></pre>
+
+    <h3>char * — devuelve puntero a cadena</h3>
+    <pre data-lang="C"><code><span class="type">char</span>    *<span class="fn">ft_strdup</span>(<span class="type">char</span> *src)
+{
+    <span class="cmt">// ...</span>
+    <span class="kw">return</span> (copy); <span class="cmt">// dirección de memoria</span>
+}</code></pre>
+
+    <h3>char ** — devuelve array de strings</h3>
+    <pre data-lang="C"><code><span class="type">char</span>    **<span class="fn">ft_split</span>(<span class="type">char</span> *str, <span class="type">char</span> *charset)
+{
+    <span class="cmt">// ...</span>
+    <span class="kw">return</span> (array); <span class="cmt">// array de cadenas</span>
+}</code></pre>
+
+    <h3>int * — devuelve array de enteros</h3>
+    <pre data-lang="C"><code><span class="type">int</span>     *<span class="fn">ft_range</span>(<span class="type">int</span> min, <span class="type">int</span> max)
+{
+    <span class="cmt">// ...</span>
+    <span class="kw">return</span> (array); <span class="cmt">// array de ints</span>
+}</code></pre>
+
+    <h3>static — solo visible en ese archivo</h3>
+    <pre data-lang="C"><code><span class="kw">static</span> <span class="type">int</span>  <span class="fn">ft_isdigit</span>(<span class="type">char</span> c)
+{
+    <span class="kw">return</span> (c >= <span class="str">'0'</span> && c <= <span class="str">'9'</span>);
+}
+<span class="cmt">// Solo usable dentro del mismo .c</span></code></pre>
+
+    <h3>Tabla resumen completa</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Tipo</th><th>Devuelve</th><th>Ejemplo típico</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>void</td><td>Nada</td><td>ft_putchar, ft_putstr</td></tr>
+          <tr><td>int</td><td>Número entero</td><td>ft_strlen, ft_is_prime</td></tr>
+          <tr><td>char</td><td>Un carácter</td><td>ft_toupper, ft_tolower</td></tr>
+          <tr><td>char *</td><td>Una cadena</td><td>ft_strdup, ft_strjoin</td></tr>
+          <tr><td>char **</td><td>Array de cadenas</td><td>ft_split</td></tr>
+          <tr><td>int *</td><td>Array de enteros</td><td>ft_range</td></tr>
+          <tr><td>static + tipo</td><td>Igual al tipo base</td><td>Funciones auxiliares</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== REGLA DE ORO ===================== -->
+  <section id="regla">
+    <div class="section-label">examen</div>
+    <h2>Regla de oro</h2>
+
+    <div class="callout">
+      <strong>💡 REGLA DE ORO</strong>
+      <p>Lo que hay después del return() debe coincidir con el tipo declarado.</p>
+    </div>
+
+    <pre data-lang="C"><code><span class="type">int</span>   <span class="fn">funcion</span>(<span class="type">void</span>)  →  <span class="kw">return</span> (<span class="num">42</span>);      <span class="cmt">✅</span>
+<span class="type">char</span>  <span class="fn">funcion</span>(<span class="type">void</span>)  →  <span class="kw">return</span> (<span class="str">'a'</span>);    <span class="cmt">✅</span>
+<span class="type">void</span>  <span class="fn">funcion</span>(<span class="type">void</span>)  →  <span class="kw">return</span> ;         <span class="cmt">✅ (sin valor)</span>
+<span class="type">char</span> *<span class="fn">funcion</span>(<span class="type">void</span>)  →  <span class="kw">return</span> (ptr);    <span class="cmt">✅ (puntero)</span>
+<span class="type">int</span>  *<span class="fn">funcion</span>(<span class="type">void</span>)  →  <span class="kw">return</span> (array);  <span class="cmt">✅ (puntero a int)</span></code></pre>
+
+    <div class="warning">
+      <strong>⚠ RECUERDA EN EL EXAMEN</strong>
+      <p>Sin IA, sin internet, hoja en blanco. Entrena tu razonamiento ahora para que fluya solo cuando llegue el momento.</p>
+    </div>
+  </section>
+
+  <footer>
+    42 Piscine C — Guía de repaso examen final &nbsp;·&nbsp; generado para estudio personal
+  </footer>
+
+</div>
+</body>
+</html>

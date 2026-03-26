@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Piscine C — C04 · C05 · C06</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00ffe0;
+    --accent2: #ff4d6d;
+    --accent3: #ffe066;
+    --text: #e2e2f0;
+    --muted: #6e6e8a;
+    --code-bg: #0d1117;
+    --c04: #f472b6;
+    --c05: #60a5fa;
+    --c06: #a3e635;
+    --norma: #ff4d6d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+
+  header {
+    position: relative;
+    padding: 60px 40px 40px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(244,114,182,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--c04);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.05; letter-spacing: -1px; }
+  h1 span { color: var(--c04); }
+  .subtitle { margin-top: 12px; color: var(--muted); font-size: 1rem; max-width: 500px; }
+
+  .toc-bar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.01);
+  }
+
+  .toc-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; padding: 4px 12px;
+    border-radius: 20px; border: 1px solid;
+    cursor: pointer; transition: all 0.2s;
+    text-decoration: none; color: inherit;
+  }
+
+  .toc-pill.c04 { border-color: var(--c04); color: var(--c04); }
+  .toc-pill.c05 { border-color: var(--c05); color: var(--c05); }
+  .toc-pill.c06 { border-color: var(--c06); color: var(--c06); }
+  .toc-pill:hover { opacity: 0.7; transform: translateY(-1px); }
+
+  main { padding: 0 40px 80px; max-width: 1100px; margin: 0 auto; }
+
+  .module { margin-top: 60px; scroll-margin-top: 80px; }
+
+  .module-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 32px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .module-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    padding: 6px 14px; border-radius: 4px;
+    letter-spacing: 2px; text-transform: uppercase; flex-shrink: 0;
+  }
+
+  .badge-c04 { background: rgba(244,114,182,0.1); color: var(--c04); border: 1px solid rgba(244,114,182,0.3); }
+  .badge-c05 { background: rgba(96,165,250,0.1); color: var(--c05); border: 1px solid rgba(96,165,250,0.3); }
+  .badge-c06 { background: rgba(163,230,53,0.1); color: var(--c06); border: 1px solid rgba(163,230,53,0.3); }
+
+  .module-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+
+  .concept-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--c04);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+    color: #c0c0d8;
+  }
+
+  .concept-intro.blue { border-left-color: var(--c05); }
+  .concept-intro.green { border-left-color: var(--c06); }
+
+  .exercise {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .exercise:hover { border-color: #333355; }
+
+  .ex-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    cursor: pointer; user-select: none;
+  }
+
+  .ex-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted); letter-spacing: 1px;
+  }
+
+  .ex-name { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+  .ex-difficulty { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .star { color: var(--accent3); }
+  .ex-body { padding: 20px; }
+
+  .ex-proto {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; color: var(--accent);
+    margin: 12px 0; overflow-x: auto;
+  }
+
+  .ex-description { font-size: 0.92rem; color: #b0b0c8; margin-bottom: 14px; line-height: 1.7; }
+
+  .step-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted);
+    margin: 20px 0 10px;
+  }
+
+  .steps ol { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+  .steps li { font-size: 0.88rem; color: #c0c0d8; line-height: 1.65; }
+  .steps li strong { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+  .steps li code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 3px; }
+
+  .codeblock {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    margin: 14px 0; font-size: 0.83rem;
+  }
+
+  .codeblock-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .filename { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-left: 4px; }
+
+  pre { padding: 16px; overflow-x: auto; margin: 0; line-height: 1.6; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; }
+
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .ty { color: #ffcb6b; }
+  .cm { color: #546e7a; font-style: italic; }
+  .st { color: #c3e88d; }
+  .nm { color: #f78c6c; }
+  .op { color: #89ddff; }
+
+  .tip {
+    display: flex; gap: 12px;
+    background: rgba(0,255,224,0.04);
+    border: 1px solid rgba(0,255,224,0.15);
+    border-radius: 8px; padding: 14px 16px;
+    margin: 16px 0; font-size: 0.88rem; color: #a0d0d0;
+  }
+  .tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+  .tip.warn { background: rgba(255,77,109,0.05); border-color: rgba(255,77,109,0.2); color: #d0a0a8; }
+  .tip.warn-y { background: rgba(255,224,102,0.05); border-color: rgba(255,224,102,0.2); color: #c8c090; }
+  .tip.pink { background: rgba(244,114,182,0.05); border-color: rgba(244,114,182,0.2); color: #d0a0c0; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  .toggle-arrow { margin-left: auto; font-size: 0.8rem; color: var(--muted); transition: transform 0.2s; }
+  details[open] .toggle-arrow { transform: rotate(180deg); }
+
+  /* argv concept box */
+  .argv-box {
+    background: rgba(163,230,53,0.05);
+    border: 1px solid rgba(163,230,53,0.2);
+    border-radius: 8px; padding: 14px 16px;
+    margin: 16px 0; font-size: 0.88rem;
+  }
+  .argv-box h4 { color: var(--c06); font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .argv-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #c0d0a0; }
+  .argv-idx { background: rgba(163,230,53,0.15); color: var(--c06); padding: 2px 8px; border-radius: 3px; font-size: 0.75rem; font-weight: 700; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 700px) {
+    header, .toc-bar, main { padding-left: 20px; padding-right: 20px; }
+    h1 { font-size: 2rem; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">42 Piscine · Guía de Estudio · Parte 2</div>
+  <h1>C04 · C05 · C06<br><span>Guía Completa</span></h1>
+  <p class="subtitle">Conversión de bases · Recursión · argc/argv — Ejercicios paso a paso con código comentado</p>
+</header>
+
+<div class="toc-bar">
+  <a href="#c04" class="toc-pill c04">C04 · atoi / bases</a>
+  <a href="#c05" class="toc-pill c05">C05 · recursión / matemáticas</a>
+  <a href="#c06" class="toc-pill c06">C06 · argc / argv</a>
+</div>
+
+<main>
+
+<!-- ═══════════════════════ C04 ═══════════════════════ -->
+<section class="module" id="c04">
+  <div class="module-header">
+    <span class="module-badge badge-c04">C 04</span>
+    <h2 class="module-title">C 04 — Conversión numérica y bases</h2>
+  </div>
+
+  <div class="concept-intro">
+    <strong>Concepto clave:</strong> Este módulo trabaja la conversión entre tipos (string → int con <code>ft_atoi</code>) y la representación de números en distintas bases. En base N, cada dígito vale su posición multiplicada por N elevado a su índice. Binario=base 2, Octal=base 8, Decimal=base 10, Hex=base 16.
+  </div>
+
+  <!-- ft_atoi -->
+  <details class="exercise" open>
+    <summary class="ex-header">
+      <span class="ex-number">EX 03</span>
+      <span class="ex-name">ft_atoi — CLÁSICO DE EXAMEN</span>
+      <span class="ex-difficulty"><span class="star">★★★</span>☆ Difícil</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_atoi(char *str);</div>
+      <p class="ex-description">Convierte un string en int. Maneja espacios al inicio, signos <code>+</code> y <code>-</code> múltiples (los negativos cambian el signo según paridad), y dígitos hasta encontrar un no-dígito.</p>
+      <p class="ex-description">Ejemplo: <code>" ---+--+1234ab567"</code> → <code>-1234</code> (3 negativos = signo negativo, se para en 'a').</p>
+      <div class="step-title">→ Razonamiento paso a paso (3 fases)</div>
+      <div class="steps"><ol>
+        <li><strong>Fase 1 — Espacios:</strong> Salta todos los caracteres que son espacio: <code>' '</code>, <code>'\t'</code>, <code>'\n'</code>, <code>'\r'</code>, <code>'\f'</code>, <code>'\v'</code> (los 6 que define isspace).</li>
+        <li><strong>Fase 2 — Signos:</strong> Lee <code>+</code> y <code>-</code>. Cada <code>-</code> invierte el signo. Usa una variable <code>sign = 1</code> y multiplica por <code>-1</code> cada vez que encuentras un <code>-</code>.</li>
+        <li><strong>Fase 3 — Dígitos:</strong> Mientras el char es dígito (<code>'0'</code>–<code>'9'</code>), construye el número: <code>result = result * 10 + (str[i] - '0')</code>.</li>
+        <li>Devuelve <code>result * sign</code>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_atoi.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_atoi</span>(<span class="ty">char</span> *str)
+{
+	<span class="ty">int</span>	i;
+	<span class="ty">int</span>	sign;
+	<span class="ty">int</span>	result;
+
+	i = <span class="nm">0</span>;
+	sign = <span class="nm">1</span>;
+	result = <span class="nm">0</span>;
+	<span class="kw">while</span> (str[i] == <span class="st">' '</span> || (str[i] >= <span class="st">'\t'</span> &amp;&amp; str[i] <= <span class="st">'\r'</span>))
+		i++;
+	<span class="kw">while</span> (str[i] == <span class="st">'+'</span> || str[i] == <span class="st">'-'</span>)
+	{
+		<span class="kw">if</span> (str[i] == <span class="st">'-'</span>)
+			sign = sign * <span class="nm">-1</span>;
+		i++;
+	}
+	<span class="kw">while</span> (str[i] >= <span class="st">'0'</span> &amp;&amp; str[i] <= <span class="st">'9'</span>)
+	{
+		result = result * <span class="nm">10</span> + (str[i] - <span class="st">'0'</span>);
+		i++;
+	}
+	<span class="kw">return</span> (result * sign);
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>La condición <code>str[i] >= '\t' && str[i] <= '\r'</code> captura <code>\t \n \v \f \r</code> de una vez porque son ASCII 9–13 consecutivos.</span>
+      </div>
+      <div class="tip warn-y">
+        <span class="tip-icon">⚠️</span>
+        <span><code>str[i] - '0'</code> convierte el carácter dígito en su valor numérico: '5' - '0' = 53 - 48 = 5.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_putnbr_base -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 04</span>
+      <span class="ex-name">ft_putnbr_base — MUY FRECUENTE EN EXAMEN</span>
+      <span class="ex-difficulty"><span class="star">★★★</span>☆ Difícil</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">void ft_putnbr_base(int nbr, char *base);</div>
+      <p class="ex-description">Muestra <code>nbr</code> en la base dada. La base es un string donde cada carácter es un símbolo. Si la base es inválida (vacía, tamaño 1, contiene <code>+</code>, <code>-</code>, o caracteres repetidos), no muestra nada.</p>
+
+      <div class="tip pink">
+        <span class="tip-icon">🎯</span>
+        <span><strong>Idea clave:</strong> Si la base es "0123456789ABCDEF" (tamaño 16), <code>base[nbr % 16]</code> da el dígito hexadecimal. Recursivamente imprime <code>nbr / base_len</code> primero, luego el dígito actual.</span>
+      </div>
+
+      <div class="step-title">→ Pasos</div>
+      <div class="steps"><ol>
+        <li>Calcula <strong>base_len</strong>: recorre la base hasta '\0'.</li>
+        <li>Valida la base: si len &lt; 2, o contiene '+'/'-', o tiene duplicados → <strong>return</strong>.</li>
+        <li>Gestiona negativos: si nbr &lt; 0 imprime '-' y niega nbr (con cuidado al INT_MIN).</li>
+        <li>Si <code>nbr >= base_len</code>, llama recursivamente con <code>nbr / base_len</code>.</li>
+        <li>Imprime <code>base[nbr % base_len]</code> — el dígito actual.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_putnbr_base.c</span></div>
+        <pre><code><span class="kw">#include</span> <span class="st">&lt;unistd.h&gt;</span>
+
+<span class="ty">static int</span>	<span class="fn">ft_base_len</span>(<span class="ty">char</span> *base)
+{
+	<span class="ty">int</span>	i;
+	<span class="ty">int</span>	j;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (base[i])
+	{
+		<span class="kw">if</span> (base[i] == <span class="st">'+'</span> || base[i] == <span class="st">'-'</span>)
+			<span class="kw">return</span> (<span class="nm">0</span>);
+		j = i + <span class="nm">1</span>;
+		<span class="kw">while</span> (base[j])
+		{
+			<span class="kw">if</span> (base[i] == base[j])
+				<span class="kw">return</span> (<span class="nm">0</span>);
+			j++;
+		}
+		i++;
+	}
+	<span class="kw">return</span> (i);
+}
+
+<span class="ty">void</span>	<span class="fn">ft_putnbr_base</span>(<span class="ty">int</span> nbr, <span class="ty">char</span> *base)
+{
+	<span class="ty">int</span>	len;
+	<span class="ty">char</span>	c;
+
+	len = <span class="fn">ft_base_len</span>(base);
+	<span class="kw">if</span> (len &lt; <span class="nm">2</span>)
+		<span class="kw">return</span> ;
+	<span class="kw">if</span> (nbr == <span class="nm">-2147483648</span>)
+	{
+		<span class="fn">ft_putnbr_base</span>(<span class="nm">-214748364</span>, base);
+		c = base[<span class="nm">8</span> % len];
+		<span class="fn">write</span>(<span class="nm">1</span>, &amp;c, <span class="nm">1</span>);
+		<span class="kw">return</span> ;
+	}
+	<span class="kw">if</span> (nbr &lt; <span class="nm">0</span>)
+	{
+		<span class="fn">write</span>(<span class="nm">1</span>, <span class="st">"-"</span>, <span class="nm">1</span>);
+		nbr = -nbr;
+	}
+	<span class="kw">if</span> (nbr >= len)
+		<span class="fn">ft_putnbr_base</span>(nbr / len, base);
+	c = base[nbr % len];
+	<span class="fn">write</span>(<span class="nm">1</span>, &amp;c, <span class="nm">1</span>);
+}</code></pre>
+      </div>
+      <div class="tip warn">
+        <span class="tip-icon">🚨</span>
+        <span>El INT_MIN necesita tratamiento especial también en base. Aquí: <code>-2147483648 / base</code> da <code>-214748364</code> y el dígito restante es <code>8</code> (en decimal). Se adapta al índice de la base.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_atoi_base -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 05</span>
+      <span class="ex-name">ft_atoi_base</span>
+      <span class="ex-difficulty"><span class="star">★★★★</span> Muy difícil</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_atoi_base(char *str, char *base);</div>
+      <p class="ex-description">Como <code>ft_atoi</code> pero convierte desde una base específica. Mismo comportamiento de signos y espacios. Si la base es inválida devuelve 0. No hay espacios en la base (a diferencia de ft_putnbr_base, aquí los espacios en la base también son error).</p>
+      <div class="step-title">→ Idea clave: buscar cada carácter de str en la base</div>
+      <div class="steps"><ol>
+        <li>Valida la base igual que en ft_putnbr_base (más: no puede contener espacios).</li>
+        <li>Salta espacios al inicio del string.</li>
+        <li>Lee signos <code>+</code> y <code>-</code> acumulando el signo.</li>
+        <li>Para cada carácter de str, busca su índice en la base. Ese índice es su valor.</li>
+        <li>Construye el número: <code>result = result * base_len + indice_en_base</code>.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_atoi_base.c</span></div>
+        <pre><code><span class="ty">static int</span>	<span class="fn">ft_find_in_base</span>(<span class="ty">char</span> c, <span class="ty">char</span> *base)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (base[i])
+	{
+		<span class="kw">if</span> (base[i] == c)
+			<span class="kw">return</span> (i);
+		i++;
+	}
+	<span class="kw">return</span> (<span class="nm">-1</span>);  <span class="cm">// no encontrado</span>
+}
+
+<span class="ty">int</span>	<span class="fn">ft_atoi_base</span>(<span class="ty">char</span> *str, <span class="ty">char</span> *base)
+{
+	<span class="ty">int</span>	i;
+	<span class="ty">int</span>	len;
+	<span class="ty">int</span>	sign;
+	<span class="ty">int</span>	result;
+	<span class="ty">int</span>	val;
+
+	len = <span class="fn">ft_base_len</span>(base);  <span class="cm">// misma función de antes</span>
+	<span class="kw">if</span> (len &lt; <span class="nm">2</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);
+	i = <span class="nm">0</span>;
+	sign = <span class="nm">1</span>;
+	result = <span class="nm">0</span>;
+	<span class="kw">while</span> (str[i] == <span class="st">' '</span> || (str[i] >= <span class="st">'\t'</span> &amp;&amp; str[i] <= <span class="st">'\r'</span>))
+		i++;
+	<span class="kw">while</span> (str[i] == <span class="st">'+'</span> || str[i] == <span class="st">'-'</span>)
+	{
+		<span class="kw">if</span> (str[i] == <span class="st">'-'</span>)
+			sign *= <span class="nm">-1</span>;
+		i++;
+	}
+	val = <span class="fn">ft_find_in_base</span>(str[i], base);
+	<span class="kw">while</span> (val != <span class="nm">-1</span>)
+	{
+		result = result * len + val;
+		i++;
+		val = <span class="fn">ft_find_in_base</span>(str[i], base);
+	}
+	<span class="kw">return</span> (result * sign);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- ═══════════════════════ C05 ═══════════════════════ -->
+<section class="module" id="c05">
+  <div class="module-header">
+    <span class="module-badge badge-c05">C 05</span>
+    <h2 class="module-title">C 05 — Recursión y matemáticas</h2>
+  </div>
+
+  <div class="concept-intro blue">
+    <strong>Concepto clave — Recursión:</strong> Una función recursiva se llama a sí misma. Necesita siempre un <em>caso base</em> (condición de parada) y un <em>caso recursivo</em> (se acerca al caso base). Sin caso base → recursión infinita → stack overflow. En C, no puedes usar bucles donde se pide recursión.
+  </div>
+
+  <div class="codeblock" style="margin-bottom:24px">
+    <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">patron_recursion.c</span></div>
+    <pre><code><span class="cm">// Patrón general de función recursiva:</span>
+<span class="ty">int</span>	<span class="fn">funcion_recursiva</span>(<span class="ty">int</span> n)
+{
+	<span class="kw">if</span> (n == CASO_BASE)           <span class="cm">// ← condición de parada</span>
+		<span class="kw">return</span> (VALOR_BASE);
+	<span class="kw">return</span> (<span class="fn">funcion_recursiva</span>(n - <span class="nm">1</span>) * n); <span class="cm">// ← llamada recursiva</span>
+}</code></pre>
+  </div>
+
+  <!-- factorial iterativo -->
+  <details class="exercise" open>
+    <summary class="ex-header">
+      <span class="ex-number">EX 00</span>
+      <span class="ex-name">ft_iterative_factorial</span>
+      <span class="ex-difficulty"><span class="star">★★</span>☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_iterative_factorial(int nb);</div>
+      <p class="ex-description">Factorial iterativo: n! = 1×2×3×...×n. Si nb &lt; 0 devuelve 0. 0! = 1.</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_iterative_factorial.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_iterative_factorial</span>(<span class="ty">int</span> nb)
+{
+	<span class="ty">int</span>	result;
+
+	<span class="kw">if</span> (nb &lt; <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);
+	result = <span class="nm">1</span>;
+	<span class="kw">while</span> (nb > <span class="nm">1</span>)
+	{
+		result = result * nb;
+		nb--;
+	}
+	<span class="kw">return</span> (result);
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>Empezamos con <code>result = 1</code> porque 1 es el neutro de la multiplicación. El loop empieza desde nb y va bajando hasta 2. Con nb=0 o nb=1 el while no se ejecuta y devuelve 1, que es correcto (0! = 1! = 1).</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- factorial recursivo -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 01</span>
+      <span class="ex-name">ft_recursive_factorial</span>
+      <span class="ex-difficulty"><span class="star">★★</span>☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_recursive_factorial(int nb);</div>
+      <p class="ex-description">Factorial recursivo. Misma lógica pero con llamadas a sí mismo. n! = n × (n-1)!</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_recursive_factorial.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_recursive_factorial</span>(<span class="ty">int</span> nb)
+{
+	<span class="kw">if</span> (nb &lt; <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);
+	<span class="kw">if</span> (nb <= <span class="nm">1</span>)
+		<span class="kw">return</span> (<span class="nm">1</span>);   <span class="cm">// caso base: 0! = 1! = 1</span>
+	<span class="kw">return</span> (nb * <span class="fn">ft_recursive_factorial</span>(nb - <span class="nm">1</span>));
+}
+<span class="cm">// 5! → 5 × 4! → 5 × 4 × 3! → ... → 5×4×3×2×1 = 120</span></code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- power iterativo -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 02 / 03</span>
+      <span class="ex-name">ft_iterative_power / ft_recursive_power</span>
+      <span class="ex-difficulty"><span class="star">★★</span>☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_iterative_power(int nb, int power);
+int ft_recursive_power(int nb, int power);</div>
+      <p class="ex-description">Calcula nb<sup>power</sup>. Si power &lt; 0 devuelve 0. 0<sup>0</sup> = 1 (decisión del enunciado).</p>
+      <div class="two-col">
+        <div class="codeblock">
+          <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">iterativa</span></div>
+          <pre><code><span class="ty">int</span>	<span class="fn">ft_iterative_power</span>(<span class="ty">int</span> nb, <span class="ty">int</span> power)
+{
+	<span class="ty">int</span>	result;
+
+	<span class="kw">if</span> (power &lt; <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);
+	result = <span class="nm">1</span>;
+	<span class="kw">while</span> (power > <span class="nm">0</span>)
+	{
+		result = result * nb;
+		power--;
+	}
+	<span class="kw">return</span> (result);
+}</code></pre>
+        </div>
+        <div class="codeblock">
+          <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">recursiva</span></div>
+          <pre><code><span class="ty">int</span>	<span class="fn">ft_recursive_power</span>(<span class="ty">int</span> nb, <span class="ty">int</span> power)
+{
+	<span class="kw">if</span> (power &lt; <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);
+	<span class="kw">if</span> (power == <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">1</span>);
+	<span class="kw">return</span> (nb * <span class="fn">ft_recursive_power</span>(
+			nb, power - <span class="nm">1</span>));
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- fibonacci -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 04</span>
+      <span class="ex-name">ft_fibonacci — CLÁSICO DE EXAMEN</span>
+      <span class="ex-difficulty"><span class="star">★★★</span>☆ Difícil</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_fibonacci(int index);</div>
+      <p class="ex-description">Devuelve el elemento en la posición <code>index</code> de la secuencia de Fibonacci: <strong>0, 1, 1, 2, 3, 5, 8, 13, 21...</strong> Si index &lt; 0 devuelve -1. Debe ser recursiva.</p>
+      <div class="step-title">→ Casos base: fib(0) = 0, fib(1) = 1. Caso recursivo: fib(n) = fib(n-1) + fib(n-2)</div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_fibonacci.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_fibonacci</span>(<span class="ty">int</span> index)
+{
+	<span class="kw">if</span> (index &lt; <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">-1</span>);
+	<span class="kw">if</span> (index == <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);   <span class="cm">// fib(0) = 0</span>
+	<span class="kw">if</span> (index == <span class="nm">1</span>)
+		<span class="kw">return</span> (<span class="nm">1</span>);   <span class="cm">// fib(1) = 1</span>
+	<span class="kw">return</span> (<span class="fn">ft_fibonacci</span>(index - <span class="nm">1</span>) + <span class="fn">ft_fibonacci</span>(index - <span class="nm">2</span>));
+}
+<span class="cm">// fib(5) → fib(4) + fib(3) → ... → 3 + 2 = 5 ✓</span></code></pre>
+      </div>
+      <div class="tip warn-y">
+        <span class="tip-icon">⚠️</span>
+        <span>Esta implementación tiene complejidad O(2^n) — muy lenta para valores grandes. Pero en el examen de 42 no lo piden eficiente, solo correcto.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_sqrt -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 05</span>
+      <span class="ex-name">ft_sqrt</span>
+      <span class="ex-difficulty"><span class="star">★★</span>☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_sqrt(int nb);</div>
+      <p class="ex-description">Devuelve la raíz cuadrada entera de nb si es exacta, 0 si no. Ej: sqrt(25)=5, sqrt(26)=0.</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_sqrt.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_sqrt</span>(<span class="ty">int</span> nb)
+{
+	<span class="ty">int</span>	i;
+
+	<span class="kw">if</span> (nb &lt; <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);
+	<span class="kw">if</span> (nb == <span class="nm">0</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);
+	i = <span class="nm">1</span>;
+	<span class="kw">while</span> (i * i &lt;= nb)
+	{
+		<span class="kw">if</span> (i * i == nb)
+			<span class="kw">return</span> (i);
+		i++;
+	}
+	<span class="kw">return</span> (<span class="nm">0</span>);
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>La condición <code>i * i &lt;= nb</code> para antes de que i supere la raíz real. Si ningún i exactamente satisface <code>i*i == nb</code>, devuelves 0.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_is_prime -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 06</span>
+      <span class="ex-name">ft_is_prime</span>
+      <span class="ex-difficulty"><span class="star">★★</span>☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_is_prime(int nb);</div>
+      <p class="ex-description">Devuelve 1 si nb es primo, 0 si no. <strong>0 y 1 no son primos.</strong> Un número es primo si solo es divisible entre 1 y él mismo.</p>
+      <div class="step-title">→ Truco: solo hay que probar divisores hasta √nb</div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_is_prime.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_is_prime</span>(<span class="ty">int</span> nb)
+{
+	<span class="ty">int</span>	i;
+
+	<span class="kw">if</span> (nb &lt;= <span class="nm">1</span>)
+		<span class="kw">return</span> (<span class="nm">0</span>);
+	i = <span class="nm">2</span>;
+	<span class="kw">while</span> (i * i &lt;= nb)
+	{
+		<span class="kw">if</span> (nb % i == <span class="nm">0</span>)
+			<span class="kw">return</span> (<span class="nm">0</span>);  <span class="cm">// tiene divisor → no es primo</span>
+		i++;
+	}
+	<span class="kw">return</span> (<span class="nm">1</span>);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_find_next_prime -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 07</span>
+      <span class="ex-name">ft_find_next_prime</span>
+      <span class="ex-difficulty"><span class="star">★★</span>☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <div class="ex-proto">int ft_find_next_prime(int nb);</div>
+      <p class="ex-description">Devuelve el primer número primo ≥ nb. Si nb ya es primo, devuelve nb.</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_find_next_prime.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">ft_find_next_prime</span>(<span class="ty">int</span> nb)
+{
+	<span class="kw">if</span> (nb &lt;= <span class="nm">2</span>)
+		<span class="kw">return</span> (<span class="nm">2</span>);
+	<span class="kw">while</span> (!<span class="fn">ft_is_prime</span>(nb))
+		nb++;
+	<span class="kw">return</span> (nb);
+}
+<span class="cm">// Reutiliza ft_is_prime — la clave de C05</span></code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>Este ejercicio demuestra la importancia de reutilizar funciones. Necesitas tener <code>ft_is_prime</code> en el mismo archivo o declarada como <code>static</code> arriba.</span>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- ═══════════════════════ C06 ═══════════════════════ -->
+<section class="module" id="c06">
+  <div class="module-header">
+    <span class="module-badge badge-c06">C 06</span>
+    <h2 class="module-title">C 06 — argc y argv</h2>
+  </div>
+
+  <div class="concept-intro green">
+    <strong>Concepto clave — argc / argv:</strong> Cuando ejecutas un programa en terminal, los argumentos llegan a <code>main</code>. <code>argc</code> es el número de argumentos (incluido el nombre del programa). <code>argv</code> es un array de strings: <code>argv[0]</code> es el nombre del programa, <code>argv[1]</code> es el primer argumento, etc.
+  </div>
+
+  <div class="argv-box">
+    <h4>Ejemplo: ./programa hola mundo</h4>
+    <div class="argv-row"><span class="argv-idx">argc = 3</span></div>
+    <div class="argv-row"><span class="argv-idx">argv[0]</span> → "./programa"</div>
+    <div class="argv-row"><span class="argv-idx">argv[1]</span> → "hola"</div>
+    <div class="argv-row"><span class="argv-idx">argv[2]</span> → "mundo"</div>
+    <div class="argv-row"><span class="argv-idx">argv[3]</span> → NULL (siempre termina en NULL)</div>
+  </div>
+
+  <div class="tip warn-y" style="margin-bottom:24px">
+    <span class="tip-icon">⚠️</span>
+    <span>En C06 los ejercicios piden <strong>programas</strong>, no funciones. Necesitas <code>int main(int argc, char **argv)</code>. Puedes usar <code>ft_putstr</code> que ya escribiste en C01/C04.</span>
+  </div>
+
+  <!-- ft_print_program_name -->
+  <details class="exercise" open>
+    <summary class="ex-header">
+      <span class="ex-number">EX 00</span>
+      <span class="ex-name">ft_print_program_name</span>
+      <span class="ex-difficulty"><span class="star">★</span>☆☆☆ Básico</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <p class="ex-description">Programa que imprime el nombre con el que fue ejecutado (<code>argv[0]</code>) seguido de un salto de línea.</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_print_program_name.c</span></div>
+        <pre><code><span class="kw">#include</span> <span class="st">&lt;unistd.h&gt;</span>
+
+<span class="ty">static void</span>	<span class="fn">ft_putstr</span>(<span class="ty">char</span> *str)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (str[i])
+	{
+		<span class="fn">write</span>(<span class="nm">1</span>, &amp;str[i], <span class="nm">1</span>);
+		i++;
+	}
+}
+
+<span class="ty">int</span>	<span class="fn">main</span>(<span class="ty">int</span> argc, <span class="ty">char</span> **argv)
+{
+	(void)argc;   <span class="cm">// evita warning de variable no usada</span>
+	<span class="fn">ft_putstr</span>(argv[<span class="nm">0</span>]);
+	<span class="fn">write</span>(<span class="nm">1</span>, <span class="st">"\n"</span>, <span class="nm">1</span>);
+	<span class="kw">return</span> (<span class="nm">0</span>);
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span><code>(void)argc;</code> silencia el warning de la Norma por variable sin usar. Es la forma idiomática de C para decir "este parámetro es intencionalmente ignorado".</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_print_params -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 01</span>
+      <span class="ex-name">ft_print_params</span>
+      <span class="ex-difficulty"><span class="star">★</span>☆☆☆ Básico</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <p class="ex-description">Imprime todos los argumentos excepto <code>argv[0]</code>, uno por línea, en el mismo orden que se recibieron.</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_print_params.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">main</span>(<span class="ty">int</span> argc, <span class="ty">char</span> **argv)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">1</span>;   <span class="cm">// empieza en 1 para saltar argv[0]</span>
+	<span class="kw">while</span> (i &lt; argc)
+	{
+		<span class="fn">ft_putstr</span>(argv[i]);
+		<span class="fn">write</span>(<span class="nm">1</span>, <span class="st">"\n"</span>, <span class="nm">1</span>);
+		i++;
+	}
+	<span class="kw">return</span> (<span class="nm">0</span>);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_rev_params -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 02</span>
+      <span class="ex-name">ft_rev_params</span>
+      <span class="ex-difficulty"><span class="star">★★</span>☆☆ Medio</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <p class="ex-description">Igual que el anterior pero en orden inverso. Si se ejecuta con <code>test1 test2 test3</code>, imprime <code>test3</code>, <code>test2</code>, <code>test1</code>.</p>
+      <div class="step-title">→ Empieza desde argc-1 y baja hasta 1</div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_rev_params.c</span></div>
+        <pre><code><span class="ty">int</span>	<span class="fn">main</span>(<span class="ty">int</span> argc, <span class="ty">char</span> **argv)
+{
+	<span class="ty">int</span>	i;
+
+	i = argc - <span class="nm">1</span>;   <span class="cm">// último argumento</span>
+	<span class="kw">while</span> (i >= <span class="nm">1</span>)  <span class="cm">// hasta 1 (saltamos argv[0])</span>
+	{
+		<span class="fn">ft_putstr</span>(argv[i]);
+		<span class="fn">write</span>(<span class="nm">1</span>, <span class="st">"\n"</span>, <span class="nm">1</span>);
+		i--;
+	}
+	<span class="kw">return</span> (<span class="nm">0</span>);
+}</code></pre>
+      </div>
+    </div>
+  </details>
+
+  <!-- ft_sort_params -->
+  <details class="exercise">
+    <summary class="ex-header">
+      <span class="ex-number">EX 03</span>
+      <span class="ex-name">ft_sort_params — CLÁSICO DE EXAMEN</span>
+      <span class="ex-difficulty"><span class="star">★★★</span>☆ Difícil</span>
+      <span class="toggle-arrow">▼</span>
+    </summary>
+    <div class="ex-body">
+      <p class="ex-description">Imprime todos los argumentos (excepto <code>argv[0]</code>) ordenados según el orden ASCII, uno por línea.</p>
+      <div class="step-title">→ Razonamiento: bubble sort sobre argv</div>
+      <div class="steps"><ol>
+        <li>Necesitas comparar strings con tu <code>ft_strcmp</code>.</li>
+        <li>Usa bubble sort: recorre el array, si <code>argv[i] > argv[i+1]</code> (en orden ASCII) los intercambias.</li>
+        <li>Para comparar strings: <code>ft_strcmp(argv[i], argv[i+1]) > 0</code> significa que argv[i] viene después en ASCII.</li>
+        <li>El intercambio es de punteros (<code>char *</code>), no de strings completos. Solo intercambias las direcciones.</li>
+      </ol></div>
+      <div class="codeblock">
+        <div class="codeblock-header"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="filename">ft_sort_params.c</span></div>
+        <pre><code><span class="ty">static int</span>	<span class="fn">ft_strcmp</span>(<span class="ty">char</span> *s1, <span class="ty">char</span> *s2)
+{
+	<span class="ty">int</span>	i;
+
+	i = <span class="nm">0</span>;
+	<span class="kw">while</span> (s1[i] == s2[i] &amp;&amp; s1[i])
+		i++;
+	<span class="kw">return</span> ((<span class="ty">unsigned char</span>)s1[i] - (<span class="ty">unsigned char</span>)s2[i]);
+}
+
+<span class="ty">int</span>	<span class="fn">main</span>(<span class="ty">int</span> argc, <span class="ty">char</span> **argv)
+{
+	<span class="ty">int</span>		i;
+	<span class="ty">char</span>	*tmp;
+
+	i = <span class="nm">1</span>;
+	<span class="kw">while</span> (i &lt; argc - <span class="nm">1</span>)
+	{
+		<span class="kw">if</span> (<span class="fn">ft_strcmp</span>(argv[i], argv[i + <span class="nm">1</span>]) > <span class="nm">0</span>)
+		{
+			tmp = argv[i];       <span class="cm">// intercambio de punteros</span>
+			argv[i] = argv[i + <span class="nm">1</span>];
+			argv[i + <span class="nm">1</span>] = tmp;
+			i = <span class="nm">1</span>;              <span class="cm">// reinicia para re-verificar</span>
+		}
+		<span class="kw">else</span>
+			i++;
+	}
+	i = <span class="nm">1</span>;
+	<span class="kw">while</span> (i &lt; argc)
+	{
+		<span class="fn">ft_putstr</span>(argv[i]);
+		<span class="fn">write</span>(<span class="nm">1</span>, <span class="st">"\n"</span>, <span class="nm">1</span>);
+		i++;
+	}
+	<span class="kw">return</span> (<span class="nm">0</span>);
+}</code></pre>
+      </div>
+      <div class="tip">
+        <span class="tip-icon">💡</span>
+        <span>El intercambio es <code>char *tmp = argv[i]; argv[i] = argv[i+1]; argv[i+1] = tmp;</code> — intercambiamos punteros (direcciones), no copiamos strings. Más eficiente y más simple.</span>
+      </div>
+      <div class="tip warn">
+        <span class="tip-icon">🚨</span>
+        <span>¡Atención a la Norma! Tienes máx 5 variables en main. Aquí usas <code>i</code> y <code>tmp</code>, más <code>argc</code> y <code>argv</code> como parámetros. Los parámetros no cuentan como variables declaradas.</span>
+      </div>
+    </div>
+  </details>
+
+  <!-- Footer recordatorio -->
+  <div style="margin-top:50px; padding:20px; border: 1px solid var(--border); border-radius:10px; background: var(--surface);">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:12px;">🎯 Recordatorio final — Examen sin internet</div>
+    <div style="font-size:0.88rem; color:#b0b0c8; line-height:1.8;">
+      1. Header 42 en cada archivo (<code style="background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:3px;">F1</code> en vim)<br>
+      2. <code style="background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:3px;">cc -Wall -Wextra -Werror</code> — cero warnings<br>
+      3. Prohibido: <strong style="color:#ff4d6d">for · switch · goto · ternario · do...while</strong><br>
+      4. En C06: los programas llevan <code style="background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:3px;">int main(int argc, char **argv)</code><br>
+      5. Usa <code style="background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:3px;">(void)argc</code> si no usas el parámetro, para evitar warnings<br>
+      6. El intercambio en ft_sort_params es de <strong style="color:var(--c06)">punteros</strong>, no de strings
+    </div>
+  </div>
+</section>
+
+</main>
+</body>
+</html>

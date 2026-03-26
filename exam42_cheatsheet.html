@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>42 Exam — Cheat Sheet & Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=Space+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f12;
+  --card: #141720;
+  --card2: #1a1e2a;
+  --border: #252b3b;
+  --accent: #f0c040;
+  --green: #3dffa0;
+  --red: #ff5f5f;
+  --blue: #5bc8ff;
+  --purple: #c084fc;
+  --orange: #fb923c;
+  --text: #dde3ee;
+  --muted: #5a6480;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Space Grotesk', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* noise overlay */
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+/* HEADER */
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,15,18,0.96);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex; align-items: center; gap: 24px;
+  height: 56px;
+}
+.logo { font-family: var(--mono); font-weight:700; font-size:16px; color:var(--accent); letter-spacing:2px; }
+.nav-links { display:flex; gap:4px; margin-left:auto; }
+.nav-link {
+  font-family:var(--mono); font-size:11px; color:var(--muted);
+  background:none; border:none; cursor:pointer;
+  padding:6px 12px; border-radius:6px;
+  transition: all 0.15s; text-decoration:none;
+}
+.nav-link:hover { color:var(--accent); background:rgba(240,192,64,0.08); }
+
+/* PROGRESS BAR sticky top */
+.progress-strip {
+  position: sticky; top: 56px; z-index: 99;
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 10px 32px;
+  display: flex; align-items: center; gap: 16px;
+}
+.progress-label { font-family:var(--mono); font-size:11px; color:var(--muted); white-space:nowrap; }
+.progress-track { flex:1; height:6px; background:var(--border); border-radius:99px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--accent)); border-radius:99px; transition:width 0.4s ease; }
+.progress-count { font-family:var(--mono); font-size:12px; color:var(--accent); font-weight:700; white-space:nowrap; }
+
+/* LAYOUT */
+.page { max-width: 1100px; margin: 0 auto; padding: 40px 32px 80px; position:relative; z-index:1; }
+
+/* HERO */
+.hero { margin-bottom:48px; }
+.hero-tag { font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:3px; text-transform:uppercase; margin-bottom:12px; }
+.hero-title { font-size:42px; font-weight:800; line-height:1.05; margin-bottom:12px; }
+.hero-title .hl { color:var(--accent); }
+.hero-desc { color:var(--muted); font-size:15px; max-width:600px; line-height:1.7; }
+
+/* SECTION */
+.section { margin-bottom:48px; }
+.section-title {
+  font-family:var(--mono); font-size:11px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--muted);
+  margin-bottom:20px;
+  display:flex; align-items:center; gap:12px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* CHECKLIST GRID */
+.checklist-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:12px; }
+
+.check-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  display: flex; align-items: flex-start; gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+.check-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background: var(--card-color, var(--border));
+  transition: width 0.2s;
+}
+.check-card:hover { border-color:var(--card-color, var(--accent)); transform:translateY(-1px); }
+.check-card.checked { background:var(--card2); }
+.check-card.checked::before { background:var(--green); width:3px; }
+
+.check-box {
+  width: 20px; height: 20px; border-radius: 5px;
+  border: 2px solid var(--muted);
+  flex-shrink: 0; margin-top:2px;
+  display:flex; align-items:center; justify-content:center;
+  transition: all 0.2s;
+  font-size:12px;
+}
+.check-card.checked .check-box {
+  background: var(--green); border-color:var(--green); color: #000; font-weight:700;
+}
+.check-content { flex:1; }
+.check-title { font-weight:700; font-size:14px; margin-bottom:4px; line-height:1.3; }
+.check-desc { font-size:12px; color:var(--muted); line-height:1.6; }
+.check-code {
+  font-family:var(--mono); font-size:11px;
+  background:rgba(0,0,0,0.3); border:1px solid var(--border);
+  border-radius:5px; padding:6px 10px; margin-top:8px;
+  color: var(--blue); white-space:pre-wrap; line-height:1.7;
+}
+.check-tag {
+  display:inline-block; font-family:var(--mono); font-size:9px;
+  font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  padding:2px 7px; border-radius:4px; margin-bottom:8px;
+}
+
+/* MAN PAGES */
+.man-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:10px; }
+.man-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 16px;
+  cursor:pointer; transition:all 0.2s;
+  display:flex; align-items:flex-start; gap:12px;
+}
+.man-card:hover { border-color:var(--blue); }
+.man-card.checked { opacity:0.6; }
+.man-cmd { font-family:var(--mono); font-size:13px; font-weight:700; color:var(--blue); }
+.man-desc { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.5; }
+.man-use { font-family:var(--mono); font-size:10px; color:var(--purple); margin-top:6px; }
+
+/* FORMULA BLOCK */
+.formulas { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+.formula-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 16px;
+}
+.formula-name { font-weight:700; font-size:13px; color:var(--orange); margin-bottom:8px; }
+.formula-code {
+  font-family:var(--mono); font-size:11px; color:var(--accent);
+  background:rgba(0,0,0,0.35); border-radius:6px; padding:8px 10px;
+  white-space:pre; line-height:1.8;
+}
+.formula-note { font-size:11px; color:var(--muted); margin-top:8px; }
+
+/* TRAPS */
+.traps-list { display:flex; flex-direction:column; gap:8px; }
+.trap-item {
+  background:rgba(255,95,95,0.06); border:1px solid rgba(255,95,95,0.2);
+  border-radius:10px; padding:12px 16px;
+  display:flex; gap:12px; align-items:flex-start;
+}
+.trap-icon { font-size:18px; flex-shrink:0; }
+.trap-title { font-weight:700; font-size:13px; color:var(--red); margin-bottom:3px; }
+.trap-desc { font-size:12px; color:var(--muted); line-height:1.6; }
+.trap-fix { font-family:var(--mono); font-size:11px; color:var(--green); margin-top:5px; }
+
+/* EXAM FLOW */
+.flow-steps { display:flex; flex-direction:column; gap:8px; }
+.flow-step {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:10px; padding:14px 18px;
+  display:flex; gap:16px; align-items:center;
+  cursor:pointer; transition:all 0.15s;
+}
+.flow-step:hover { border-color:var(--accent); }
+.flow-step.checked { border-color:var(--green); opacity:0.7; }
+.flow-num {
+  width:32px; height:32px; border-radius:8px; flex-shrink:0;
+  background:rgba(240,192,64,0.12); border:1px solid rgba(240,192,64,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:14px; font-weight:700; color:var(--accent);
+}
+.flow-step.checked .flow-num { background:rgba(61,255,160,0.1); border-color:var(--green); color:var(--green); }
+.flow-text { font-size:13px; }
+.flow-title { font-weight:700; margin-bottom:2px; }
+.flow-sub { font-size:11px; color:var(--muted); }
+
+/* RESET */
+.reset-btn {
+  font-family:var(--mono); font-size:11px; color:var(--muted);
+  background:none; border:1px solid var(--border);
+  border-radius:6px; padding:6px 14px; cursor:pointer;
+  transition:all 0.15s; margin-left:auto;
+}
+.reset-btn:hover { color:var(--red); border-color:var(--red); }
+
+@media(max-width:680px){
+  .page{padding:24px 16px 60px;}
+  .hero-title{font-size:28px;}
+  header{padding:0 16px;}
+  .progress-strip{padding:10px 16px;}
+  .nav-links{display:none;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">42 // EXAM</div>
+  <nav class="nav-links">
+    <a class="nav-link" href="#flujo">Flujo</a>
+    <a class="nav-link" href="#conceptos">Conceptos</a>
+    <a class="nav-link" href="#formulas">Fórmulas</a>
+    <a class="nav-link" href="#trampas">Trampas</a>
+    <a class="nav-link" href="#man">man pages</a>
+  </nav>
+</header>
+
+<div class="progress-strip">
+  <span class="progress-label">PROGRESO CHECKLIST</span>
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <span class="progress-count" id="progressCount">0 / 0</span>
+  <button class="reset-btn" onclick="resetAll()">↺ Reiniciar</button>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Exam Rank 02 · Prep Sheet</div>
+    <h1 class="hero-title">Cheat Sheet<br><span class="hl">& Checklist</span></h1>
+    <p class="hero-desc">Repasa cada concepto clave, marca lo que ya dominas y consulta los man pages disponibles en el examen. Click en cualquier ítem para marcarlo.</p>
+  </div>
+
+  <!-- FLUJO DEL EXAMEN -->
+  <div class="section" id="flujo">
+    <div class="section-title">01 — Flujo mental en el examen</div>
+    <div class="flow-steps" id="flow-steps">
+      <div class="flow-step checkable" data-id="flow_0" onclick="toggleFlow(this)">
+        <div class="flow-num">1</div>
+        <div class="flow-text">
+          <div class="flow-title">Lee el enunciado ENTERO antes de escribir código</div>
+          <div class="flow-sub">Fíjate en el prototipo, el nombre del archivo, las funciones autorizadas</div>
+        </div>
+      </div>
+      <div class="flow-step checkable" data-id="flow_1" onclick="toggleFlow(this)">
+        <div class="flow-num">2</div>
+        <div class="flow-text">
+          <div class="flow-title">Identifica el tipo de ejercicio</div>
+          <div class="flow-sub">¿Es un programa (main) o una función? ¿Necesita malloc? ¿Usa write o printf?</div>
+        </div>
+      </div>
+      <div class="flow-step checkable" data-id="flow_2" onclick="toggleFlow(this)">
+        <div class="flow-num">3</div>
+        <div class="flow-text">
+          <div class="flow-title">Escribe el include y la firma correctos PRIMERO</div>
+          <div class="flow-sub">#include &lt;unistd.h&gt; para write · #include &lt;stdlib.h&gt; para malloc/atoi</div>
+        </div>
+      </div>
+      <div class="flow-step checkable" data-id="flow_3" onclick="toggleFlow(this)">
+        <div class="flow-num">4</div>
+        <div class="flow-text">
+          <div class="flow-title">Casos borde ANTES de la lógica principal</div>
+          <div class="flow-sub">argc incorrecto · puntero NULL · min >= max · división por 0 · n=0 o n=1</div>
+        </div>
+      </div>
+      <div class="flow-step checkable" data-id="flow_4" onclick="toggleFlow(this)">
+        <div class="flow-num">5</div>
+        <div class="flow-text">
+          <div class="flow-title">Compila con las flags correctas</div>
+          <div class="flow-sub">cc -Wall -Wextra -Werror archivo.c — sin warnings = bien</div>
+        </div>
+      </div>
+      <div class="flow-step checkable" data-id="flow_5" onclick="toggleFlow(this)">
+        <div class="flow-num">6</div>
+        <div class="flow-text">
+          <div class="flow-title">Testea los casos del ejemplo Y los extremos</div>
+          <div class="flow-sub">String vacío · solo espacios · string de 1 char · números negativos · 0</div>
+        </div>
+      </div>
+      <div class="flow-step checkable" data-id="flow_6" onclick="toggleFlow(this)">
+        <div class="flow-num">7</div>
+        <div class="flow-text">
+          <div class="flow-title">Verifica el newline final</div>
+          <div class="flow-sub">Casi todos los programas terminan con write(1, "\n", 1) — ¡no te lo olvides!</div>
+        </div>
+      </div>
+      <div class="flow-step checkable" data-id="flow_7" onclick="toggleFlow(this)">
+        <div class="flow-num">8</div>
+        <div class="flow-text">
+          <div class="flow-title">Revisa la Norma antes de entregar</div>
+          <div class="flow-sub">Indentación con tabs · max 25 líneas por función · nombres correctos de archivo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCEPTOS CLAVE -->
+  <div class="section" id="conceptos">
+    <div class="section-title">02 — Conceptos clave por dominar</div>
+    <div class="checklist-grid" id="checklist-grid">
+
+      <!-- WRITE -->
+      <div class="check-card checkable" data-id="c0" onclick="toggleCheck(this)" style="--card-color:#5bc8ff">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(91,200,255,0.1);color:#5bc8ff">Esencial</div>
+          <div class="check-title">write() — la función fundamental</div>
+          <div class="check-desc">Solo puedes usar write() en la mayoría de ejercicios. Sin printf, sin puts.</div>
+          <div class="check-code">write(1, &c, 1);        // 1 char
+write(1, "hola", 4);  // string literal
+write(1, "\n", 1);    // newline</div>
+        </div>
+      </div>
+
+      <!-- ARGC ARGV -->
+      <div class="check-card checkable" data-id="c1" onclick="toggleCheck(this)" style="--card-color:#5bc8ff">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(91,200,255,0.1);color:#5bc8ff">Esencial</div>
+          <div class="check-title">argc / argv — argumentos del programa</div>
+          <div class="check-desc">argc incluye el nombre del programa. Con 1 argumento, argc == 2.</div>
+          <div class="check-code">argc == 1  // sin argumentos
+argc == 2  // 1 argumento (argv[1])
+argc == 4  // 3 argumentos
+argv[1][0] // primer char del 1er arg</div>
+        </div>
+      </div>
+
+      <!-- ITERAR STRING -->
+      <div class="check-card checkable" data-id="c2" onclick="toggleCheck(this)" style="--card-color:#3dffa0">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(61,255,160,0.1);color:#3dffa0">Strings</div>
+          <div class="check-title">Iterar un string correctamente</div>
+          <div class="check-desc">El string termina en '\0'. El índice i empieza en 0.</div>
+          <div class="check-code">i = 0;
+while (str[i])   // mientras no sea '\0'
+{
+    // ...
+    i++;
+}</div>
+        </div>
+      </div>
+
+      <!-- LONGITUD STRING -->
+      <div class="check-card checkable" data-id="c3" onclick="toggleCheck(this)" style="--card-color:#3dffa0">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(61,255,160,0.1);color:#3dffa0">Strings</div>
+          <div class="check-title">Calcular longitud de un string</div>
+          <div class="check-desc">Patrón usado en ft_strlen, rev_print, last_word y muchos más.</div>
+          <div class="check-code">i = 0;
+while (str[i])
+    i++;
+// i == longitud del string</div>
+        </div>
+      </div>
+
+      <!-- MAYUSCULAS MINUSCULAS -->
+      <div class="check-card checkable" data-id="c4" onclick="toggleCheck(this)" style="--card-color:#3dffa0">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(61,255,160,0.1);color:#3dffa0">Strings</div>
+          <div class="check-title">Conversión mayúsculas ↔ minúsculas</div>
+          <div class="check-desc">La diferencia entre 'A' y 'a' en ASCII es exactamente 32.</div>
+          <div class="check-code">c += 32;  // mayúscula → minúscula
+c -= 32;  // minúscula → mayúscula
+// Comprueba SIEMPRE si es letra antes</div>
+        </div>
+      </div>
+
+      <!-- ALFABETO / ROTACIONES -->
+      <div class="check-card checkable" data-id="c5" onclick="toggleCheck(this)" style="--card-color:#3dffa0">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(61,255,160,0.1);color:#3dffa0">Strings</div>
+          <div class="check-title">Rotaciones en el alfabeto (rot)</div>
+          <div class="check-desc">Fórmula universal con % 26 para wrapping automático.</div>
+          <div class="check-code">// ROT-N minúsculas:
+c = (c - 'a' + N) % 26 + 'a';
+// ROT-N mayúsculas:
+c = (c - 'A' + N) % 26 + 'A';</div>
+        </div>
+      </div>
+
+      <!-- MALLOC -->
+      <div class="check-card checkable" data-id="c6" onclick="toggleCheck(this)" style="--card-color:#fb923c">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(251,146,60,0.1);color:#fb923c">Memoria</div>
+          <div class="check-title">malloc — patrón básico</div>
+          <div class="check-desc">Calcula el tamaño, malloc, comprueba NULL, usa, pon el '\0' final.</div>
+          <div class="check-code">ptr = malloc(sizeof(char) * (len + 1));
+if (!ptr)
+    return (NULL);
+// ... rellenar ...
+ptr[len] = '\0';</div>
+        </div>
+      </div>
+
+      <!-- MALLOC ARRAY INT -->
+      <div class="check-card checkable" data-id="c7" onclick="toggleCheck(this)" style="--card-color:#fb923c">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(251,146,60,0.1);color:#fb923c">Memoria</div>
+          <div class="check-title">malloc — array de ints</div>
+          <div class="check-desc">Para ft_range, ft_rrange. El tamaño es (max - min) ints.</div>
+          <div class="check-code">arr = malloc(sizeof(int) * size);
+// NO hay '\0' — es un array de ints
+// El caller sabe el tamaño por contexto</div>
+        </div>
+      </div>
+
+      <!-- PUTNBR -->
+      <div class="check-card checkable" data-id="c8" onclick="toggleCheck(this)" style="--card-color:#f0c040">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(240,192,64,0.1);color:#f0c040">Números</div>
+          <div class="check-title">putnbr — imprimir un número sin printf</div>
+          <div class="check-desc">Función recursiva esencial. Divide entre 10, imprime de izquierda a derecha.</div>
+          <div class="check-code">void putnbr(int n)
+{
+    char c;
+    if (n < 0) { write(1, "-", 1); n = -n; }
+    if (n >= 10) putnbr(n / 10);
+    c = '0' + n % 10;
+    write(1, &c, 1);
+}</div>
+        </div>
+      </div>
+
+      <!-- ATOI -->
+      <div class="check-card checkable" data-id="c9" onclick="toggleCheck(this)" style="--card-color:#f0c040">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(240,192,64,0.1);color:#f0c040">Números</div>
+          <div class="check-title">ft_atoi — 3 fases</div>
+          <div class="check-desc">Whitespace → signo → dígitos. Los 6 whitespace: ' ' \t \n \r \f \v</div>
+          <div class="check-code">// Fase 1: salta whitespace
+while (str[i] == ' ' || str[i] == '\t' ...)
+// Fase 2: signo
+if (str[i] == '-') sign = -1;
+// Fase 3: acumula dígitos
+result = result * 10 + (str[i] - '0');</div>
+        </div>
+      </div>
+
+      <!-- ITOA -->
+      <div class="check-card checkable" data-id="c10" onclick="toggleCheck(this)" style="--card-color:#f0c040">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(240,192,64,0.1);color:#f0c040">Números</div>
+          <div class="check-title">ft_itoa — rellena de derecha a izquierda</div>
+          <div class="check-desc">Usa long para evitar overflow con INT_MIN. Calcula longitud → malloc → rellena.</div>
+          <div class="check-code">// Rellena al revés:
+str[--len] = '0' + (num % 10);
+num /= 10;
+// Usa long num = (long)n</div>
+        </div>
+      </div>
+
+      <!-- SEPARADORES -->
+      <div class="check-card checkable" data-id="c11" onclick="toggleCheck(this)" style="--card-color:#c084fc">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(192,132,252,0.1);color:#c084fc">Patrones</div>
+          <div class="check-title">Detectar separadores (espacio / tab)</div>
+          <div class="check-desc">Patrón recurrente en first_word, last_word, epur_str, str_capitalizer...</div>
+          <div class="check-code">// Separador básico:
+c == ' ' || c == '\t'
+// Saltar separadores iniciales:
+while (str[i] == ' ' || str[i] == '\t')
+    i++;</div>
+        </div>
+      </div>
+
+      <!-- FLAG NEW_WORD -->
+      <div class="check-card checkable" data-id="c12" onclick="toggleCheck(this)" style="--card-color:#c084fc">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(192,132,252,0.1);color:#c084fc">Patrones</div>
+          <div class="check-title">Flag de "nueva palabra"</div>
+          <div class="check-desc">Patrón para str_capitalizer, epur_str. El flag se activa tras separador.</div>
+          <div class="check-code">new_word = 1; // inicio = nueva palabra
+while (str[i])
+{
+    if (is_sep(str[i]))  new_word = 1;
+    else if (new_word) { /* capitalizar */ new_word = 0; }
+    else               { /* minúscula  */ }
+}</div>
+        </div>
+      </div>
+
+      <!-- SUBSECUENCIA -->
+      <div class="check-card checkable" data-id="c13" onclick="toggleCheck(this)" style="--card-color:#c084fc">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(192,132,252,0.1);color:#c084fc">Patrones</div>
+          <div class="check-title">Subsecuencia — patrón dos índices</div>
+          <div class="check-desc">Usado en wdmatch, hidenp. i solo avanza cuando hay coincidencia.</div>
+          <div class="check-code">i = 0; j = 0;
+while (s1[i] && s2[j])
+{
+    if (s1[i] == s2[j]) i++;
+    j++;
+}
+if (!s1[i]) // s1 está en s2</div>
+        </div>
+      </div>
+
+      <!-- BITS -->
+      <div class="check-card checkable" data-id="c14" onclick="toggleCheck(this)" style="--card-color:#ff5f5f">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(255,95,95,0.1);color:#ff5f5f">Bits</div>
+          <div class="check-title">Operaciones de bits fundamentales</div>
+          <div class="check-desc">Para print_bits, reverse_bits, swap_bits, is_power_of_2.</div>
+          <div class="check-code">(n >> i) & 1   // extrae bit en posición i
+n & (n - 1)    // 0 si potencia de 2
+(n >> 4) | (n << 4)  // swap nibbles
+result = (result << 1) | (n & 1)</div>
+        </div>
+      </div>
+
+      <!-- RECURSION -->
+      <div class="check-card checkable" data-id="c15" onclick="toggleCheck(this)" style="--card-color:#ff5f5f">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(255,95,95,0.1);color:#ff5f5f">Recursión</div>
+          <div class="check-title">Recursión — estructura básica</div>
+          <div class="check-desc">Caso base primero, luego la llamada recursiva. Usada en putnbr, pgcd, flood_fill.</div>
+          <div class="check-code">int pgcd(int a, int b)
+{
+    if (b == 0) return (a); // caso base
+    return (pgcd(b, a % b)); // recursión
+}</div>
+        </div>
+      </div>
+
+      <!-- LISTA ENLAZADA -->
+      <div class="check-card checkable" data-id="c16" onclick="toggleCheck(this)" style="--card-color:#c084fc">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(192,132,252,0.1);color:#c084fc">Estructuras</div>
+          <div class="check-title">Lista enlazada — recorrer</div>
+          <div class="check-desc">Avanza con ->next hasta NULL. Estructura: data + next.</div>
+          <div class="check-code">while (list)
+{
+    // usar list->data
+    list = list->next;
+}
+// al salir, list == NULL</div>
+        </div>
+      </div>
+
+      <!-- FLOOD FILL -->
+      <div class="check-card checkable" data-id="c17" onclick="toggleCheck(this)" style="--card-color:#ff5f5f">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(255,95,95,0.1);color:#ff5f5f">Recursión</div>
+          <div class="check-title">Flood Fill — lógica recursiva</div>
+          <div class="check-desc">Guarda target, marca como 'F', llama a los 4 vecinos si tienen target. tab[y][x].</div>
+          <div class="check-code">target = tab[y][x];
+if (target == 'F') return; // ya visitado
+tab[y][x] = 'F';
+// Comprobar límites antes de llamar:
+// x > 0, x < size.x-1, y > 0, y < size.y-1</div>
+        </div>
+      </div>
+
+      <!-- BUBBLE SORT -->
+      <div class="check-card checkable" data-id="c18" onclick="toggleCheck(this)" style="--card-color:#f0c040">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(240,192,64,0.1);color:#f0c040">Algoritmos</div>
+          <div class="check-title">Bubble Sort — ordenar array</div>
+          <div class="check-desc">Dos bucles anidados. El bucle interno puede reducirse en i cada iteración.</div>
+          <div class="check-code">i = 0;
+while (i < size - 1)
+{
+    j = 0;
+    while (j < size - 1 - i)
+    {
+        if (tab[j] > tab[j+1])
+            swap(&tab[j], &tab[j+1]);
+        j++;
+    }
+    i++;
+}</div>
+        </div>
+      </div>
+
+      <!-- ESPEJO ALFABETO -->
+      <div class="check-card checkable" data-id="c19" onclick="toggleCheck(this)" style="--card-color:#3dffa0">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(61,255,160,0.1);color:#3dffa0">Strings</div>
+          <div class="check-title">Espejo del alfabeto (alpha_mirror)</div>
+          <div class="check-desc">a↔z, b↔y. La posición desde el inicio = posición desde el final.</div>
+          <div class="check-code">// Minúscula:
+c = 'z' - (c - 'a');
+// Mayúscula:
+c = 'Z' - (c - 'A');</div>
+        </div>
+      </div>
+
+      <!-- NORMA -->
+      <div class="check-card checkable" data-id="c20" onclick="toggleCheck(this)" style="--card-color:#5bc8ff">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-tag" style="background:rgba(91,200,255,0.1);color:#5bc8ff">Norma</div>
+          <div class="check-title">Norma — reglas básicas</div>
+          <div class="check-desc">Incumplir la Norma = 0. No opcional.</div>
+          <div class="check-code">// ✓ Tabs para indentar (NO espacios)
+// ✓ Max 25 líneas por función
+// ✓ Max 4 parámetros por función
+// ✓ Declarar variables al inicio del bloque
+// ✓ Solo un return por función (recomendado)</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FÓRMULAS MÁGICAS -->
+  <div class="section" id="formulas">
+    <div class="section-title">03 — Fórmulas que debes memorizar</div>
+    <div class="formulas">
+      <div class="formula-card">
+        <div class="formula-name">🔁 ROT-N (rotaciones)</div>
+        <div class="formula-code">c = (c - 'a' + N) % 26 + 'a'; // minús
+c = (c - 'A' + N) % 26 + 'A'; // mayús</div>
+        <div class="formula-note">N=1 para rotone · N=13 para rot_13</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">🔢 Acumular dígitos (atoi)</div>
+        <div class="formula-code">result = result * 10 + (str[i] - '0');</div>
+        <div class="formula-note">También aplica para ft_atoi_base con la base</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">🪞 Espejo del alfabeto</div>
+        <div class="formula-code">c = 'z' - (c - 'a'); // minúsculas
+c = 'Z' - (c - 'A'); // mayúsculas</div>
+        <div class="formula-note">alpha_mirror: a↔z, b↔y, c↔x...</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">📐 Máximo Común Divisor</div>
+        <div class="formula-code">int pgcd(int a, int b)
+{
+    if (b == 0) return (a);
+    return (pgcd(b, a % b));
+}</div>
+        <div class="formula-note">Algoritmo de Euclides — memorízalo</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">⚡ Potencia de 2 (bits)</div>
+        <div class="formula-code">n != 0 && (n & (n - 1)) == 0</div>
+        <div class="formula-note">is_power_of_2 — truco bit a bit</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">🔄 Swap nibbles (bits)</div>
+        <div class="formula-code">return ((octet >> 4) | (octet << 4));</div>
+        <div class="formula-note">swap_bits — una sola línea</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">📦 ft_itoa — rellenar al revés</div>
+        <div class="formula-code">str[--len] = '0' + (num % 10);
+num /= 10;</div>
+        <div class="formula-note">Siempre usa long para manejar INT_MIN</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">🧮 MCM a partir del MCD</div>
+        <div class="formula-code">lcm = (a / gcd(a, b)) * b;</div>
+        <div class="formula-note">Divide primero para evitar overflow</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">🔡 Posición en alfabeto</div>
+        <div class="formula-code">pos = c - 'a' + 1; // 'a'=1, 'b'=2...
+pos = c - 'A' + 1; // mayúsculas</div>
+        <div class="formula-note">repeat_alpha: imprime el char 'pos' veces</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRAMPAS COMUNES -->
+  <div class="section" id="trampas">
+    <div class="section-title">04 — Trampas y errores frecuentes</div>
+    <div class="traps-list">
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">Olvidar el '\0' final en malloc</div>
+          <div class="trap-desc">Si haces malloc para un string y no pones el '\0' al final, obtendrás comportamiento indefinido o segfault.</div>
+          <div class="trap-fix">✓ Siempre: malloc(len + 1) y str[len] = '\0';</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">Olvidar el newline final en programas</div>
+          <div class="trap-desc">Casi todos los programas del examen deben terminar con un newline, incluso cuando no hay argumento.</div>
+          <div class="trap-fix">✓ write(1, "\n", 1); — siempre al final del main antes del return</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">fizzbuzz: orden incorrecto de comprobaciones</div>
+          <div class="trap-desc">Si compruebas % 3 antes que % 15, los múltiplos de 15 imprimirán "fizz" en vez de "fizzbuzz".</div>
+          <div class="trap-fix">✓ Siempre: % 15 → % 3 → % 5 → número</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">do_op: división o módulo por cero</div>
+          <div class="trap-desc">Si b == 0 y el operador es / o %, el programa crashea con un error de división.</div>
+          <div class="trap-fix">✓ Comprueba b != 0 antes de dividir. Si b == 0, imprime solo '\n'.</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">ft_itoa con INT_MIN (-2147483648)</div>
+          <div class="trap-desc">Cambiar el signo de INT_MIN en un int causa overflow porque 2147483648 no cabe en int.</div>
+          <div class="trap-fix">✓ Usa long: long num = (long)n; — luego opera con num</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">flood_fill: acceder fuera de los límites</div>
+          <div class="trap-desc">Si no compruebas los límites antes de llamar recursivamente, accederás a memoria inválida.</div>
+          <div class="trap-fix">✓ Siempre: if (x > 0) antes de acceder a tab[y][x-1]</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">ulstr: los no-alfabéticos SÍ cuentan como posición</div>
+          <div class="trap-desc">Un espacio o número avanza i aunque no se modifique, cambiando la paridad del siguiente carácter.</div>
+          <div class="trap-fix">✓ Siempre incrementa i, independientemente del tipo de carácter</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">ft_split: NULL al final del array</div>
+          <div class="trap-desc">El array de strings de ft_split debe terminar con NULL. Sin él, no funciona correctamente.</div>
+          <div class="trap-fix">✓ result[words] = NULL; — después del loop de relleno</div>
+        </div>
+      </div>
+      <div class="trap-item">
+        <div class="trap-icon">🪤</div>
+        <div>
+          <div class="trap-title">Usar printf o funciones no autorizadas</div>
+          <div class="trap-desc">Cada ejercicio especifica las funciones autorizadas. Usar printf cuando solo se permite write = 0 puntos.</div>
+          <div class="trap-fix">✓ Lee las funciones autorizadas en el enunciado ANTES de escribir cualquier código</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAN PAGES -->
+  <div class="section" id="man">
+    <div class="section-title">05 — man pages disponibles en el examen</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Durante el examen puedes consultar el manual con <span style="font-family:var(--mono);color:var(--blue)">man &lt;función&gt;</span> en la terminal. Estas son las más útiles:</p>
+    <div class="man-grid">
+      <div class="man-card checkable" data-id="m0" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man write</div>
+          <div class="man-desc">Escribe bytes en un file descriptor. fd=1 es stdout.</div>
+          <div class="man-use">ssize_t write(int fd, const void *buf, size_t count);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m1" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man malloc</div>
+          <div class="man-desc">Reserva memoria en el heap. Devuelve NULL si falla.</div>
+          <div class="man-use">void *malloc(size_t size);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m2" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man free</div>
+          <div class="man-desc">Libera memoria reservada con malloc.</div>
+          <div class="man-use">void free(void *ptr);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m3" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man atoi</div>
+          <div class="man-desc">Convierte string a int. Ignora whitespace inicial.</div>
+          <div class="man-use">int atoi(const char *nptr);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m4" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man atol</div>
+          <div class="man-desc">Como atoi pero devuelve long. Útil para lcm.</div>
+          <div class="man-use">long atol(const char *nptr);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m5" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man strdup</div>
+          <div class="man-desc">Duplica un string con malloc. Referencia para ft_strdup.</div>
+          <div class="man-use">char *strdup(const char *s);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m6" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man strlen</div>
+          <div class="man-desc">Longitud de un string. Sin contar el '\0' final.</div>
+          <div class="man-use">size_t strlen(const char *s);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m7" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man strcmp</div>
+          <div class="man-desc">Compara dos strings. 0=igual, <0 o >0 si no.</div>
+          <div class="man-use">int strcmp(const char *s1, const char *s2);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m8" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man strcpy</div>
+          <div class="man-desc">Copia src en dest, incluyendo el '\0'. Devuelve dest.</div>
+          <div class="man-use">char *strcpy(char *dest, const char *src);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m9" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man strcspn</div>
+          <div class="man-desc">Longitud hasta primer char de reject. Referencia para ft_strcspn.</div>
+          <div class="man-use">size_t strcspn(const char *s, const char *reject);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m10" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man strspn</div>
+          <div class="man-desc">Longitud del segmento inicial con chars de accept.</div>
+          <div class="man-use">size_t strspn(const char *s, const char *accept);</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m11" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man ascii</div>
+          <div class="man-desc">Tabla ASCII completa. 'a'=97, 'A'=65, '0'=48, diferencia=32.</div>
+          <div class="man-use">man ascii  →  tabla de referencia completa</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m12" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man limits</div>
+          <div class="man-desc">Constantes límite. INT_MAX=2147483647, INT_MIN=-2147483648.</div>
+          <div class="man-use">man limits.h  o  man INT_MAX</div>
+        </div>
+      </div>
+      <div class="man-card checkable" data-id="m13" onclick="toggleMan(this)">
+        <div class="check-box" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s"></div>
+        <div>
+          <div class="man-cmd">man qsort</div>
+          <div class="man-desc">Ordenar arrays con función comparadora. Alternativa a bubble sort.</div>
+          <div class="man-use">void qsort(void *base, size_t nmemb, size_t size, int (*compar)(...));</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INCLUDES RAPIDOS -->
+  <div class="section">
+    <div class="section-title">06 — Includes necesarios por función</div>
+    <div class="formulas">
+      <div class="formula-card">
+        <div class="formula-name">📁 #include &lt;unistd.h&gt;</div>
+        <div class="formula-code">write()
+// Todos los programas que usan write</div>
+        <div class="formula-note">El más usado en el examen</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">📁 #include &lt;stdlib.h&gt;</div>
+        <div class="formula-code">malloc()   free()
+atoi()     atol()
+// Cualquier ejercicio con memoria dinámica</div>
+        <div class="formula-note">ft_strdup, ft_range, ft_split, ft_itoa...</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-name">📁 Sin includes necesarios</div>
+        <div class="formula-code">ft_strlen    ft_strcmp
+ft_strcpy    ft_swap
+ft_strrev    is_power_of_2
+print_bits   reverse_bits   swap_bits</div>
+        <div class="formula-note">Solo operan con tipos básicos de C</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const KEY = '42_cheatsheet_v1';
+let state = JSON.parse(localStorage.getItem(KEY) || '{}');
+
+function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+function updateProgress() {
+  const all = document.querySelectorAll('.checkable');
+  const checked = Object.values(state).filter(Boolean).length;
+  const total = all.length;
+  document.getElementById('progressFill').style.width = (total ? Math.round(checked/total*100) : 0) + '%';
+  document.getElementById('progressCount').textContent = checked + ' / ' + total;
+}
+
+function toggleCheck(el) {
+  const id = el.dataset.id;
+  state[id] = !state[id];
+  el.classList.toggle('checked', state[id]);
+  const box = el.querySelector('.check-box');
+  box.textContent = state[id] ? '✓' : '';
+  save(); updateProgress();
+}
+
+function toggleFlow(el) {
+  const id = el.dataset.id;
+  state[id] = !state[id];
+  el.classList.toggle('checked', state[id]);
+  const num = el.querySelector('.flow-num');
+  if (state[id]) num.textContent = '✓';
+  else num.textContent = el.dataset.id.replace('flow_','') * 1 + 1;
+  save(); updateProgress();
+}
+
+function toggleMan(el) {
+  const id = el.dataset.id;
+  state[id] = !state[id];
+  el.classList.toggle('checked', state[id]);
+  const box = el.querySelector('.check-box');
+  box.style.background = state[id] ? 'var(--green)' : '';
+  box.style.borderColor = state[id] ? 'var(--green)' : 'var(--muted)';
+  box.style.color = state[id] ? '#000' : '';
+  box.textContent = state[id] ? '✓' : '';
+  save(); updateProgress();
+}
+
+function resetAll() {
+  if (!confirm('¿Reiniciar todo el progreso?')) return;
+  state = {};
+  localStorage.removeItem(KEY);
+  document.querySelectorAll('.check-card.checked').forEach(el => {
+    el.classList.remove('checked');
+    el.querySelector('.check-box').textContent = '';
+  });
+  document.querySelectorAll('.flow-step.checked').forEach(el => {
+    el.classList.remove('checked');
+    const id = parseInt(el.dataset.id.replace('flow_',''));
+    el.querySelector('.flow-num').textContent = id + 1;
+  });
+  document.querySelectorAll('.man-card.checked').forEach(el => {
+    el.classList.remove('checked');
+    const box = el.querySelector('.check-box');
+    box.style = ''; box.textContent = '';
+  });
+  updateProgress();
+}
+
+// Restore state on load
+document.querySelectorAll('.check-card.checkable').forEach(el => {
+  if (state[el.dataset.id]) { el.classList.add('checked'); el.querySelector('.check-box').textContent = '✓'; }
+});
+document.querySelectorAll('.flow-step.checkable').forEach(el => {
+  if (state[el.dataset.id]) {
+    el.classList.add('checked');
+    el.querySelector('.flow-num').textContent = '✓';
+  }
+});
+document.querySelectorAll('.man-card.checkable').forEach(el => {
+  if (state[el.dataset.id]) {
+    el.classList.add('checked');
+    const box = el.querySelector('.check-box');
+    box.style.background='var(--green)'; box.style.borderColor='var(--green)';
+    box.style.color='#000'; box.textContent='✓';
+  }
+});
+
+updateProgress();
+</script>
+</body>
+</html>
